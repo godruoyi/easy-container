@@ -16,6 +16,5 @@
         "psr-4": {
             "Godruoyi\\": "src/Godruoyi/"
         }
-    },
-    "minimum-stability": "dev"
+    }
 }
