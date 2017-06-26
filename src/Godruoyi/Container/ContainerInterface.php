@@ -83,7 +83,7 @@ interface ContainerInterface
      * @param  array   $parameters
      * @return mixed
      */
-    public function make($abstract, array $parameters = []);
+    public function make($abstract, array $parameters = array());
 
     /**
      * Call the given Closure / class@method and inject its dependencies.
@@ -93,7 +93,7 @@ interface ContainerInterface
      * @param  string|null  $defaultMethod
      * @return mixed
      */
-    public function call($callback, array $parameters = [], $defaultMethod = null);
+    public function call($callback, array $parameters = array(), $defaultMethod = null);
 
     /**
      * Determine if the given abstract type has been resolved.
