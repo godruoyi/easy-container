@@ -18,56 +18,56 @@ use ReflectionParameter;
  */
 class Container implements ContainerInterface, ArrayAccess
 {
-	/**
-	 * 容器实列对象
-	 * 
-	 * @var static
-	 */
-	protected static $instance;
+    /**
+     * 容器实列对象
+     * 
+     * @var static
+     */
+    protected static $instance;
 
-	/**
-	 * 已经解决的对象集合
-	 * 
-	 * @var array
-	 */
-	protected $resoleved = array();
+    /**
+     * 已经解决的对象集合
+     * 
+     * @var array
+     */
+    protected $resoleved = array();
 
-	/**
-	 * 绑定在容器上的对象集合
-	 * 
-	 * @var array
-	 */
-	protected $bindings = array();
+    /**
+     * 绑定在容器上的对象集合
+     * 
+     * @var array
+     */
+    protected $bindings = array();
 
-	/**
-	 * 绑定到容器的实列对象集合
-	 * 
-	 * @var array
-	 */
-	protected $instances = array();
+    /**
+     * 绑定到容器的实列对象集合
+     * 
+     * @var array
+     */
+    protected $instances = array();
 
-	/**
-	 * 注册一个 笔名 => 对应的类 到容器中
-	 * 
-	 * @var array
-	 */
-	protected $aliases = array();
+    /**
+     * 注册一个 笔名 => 对应的类 到容器中
+     * 
+     * @var array
+     */
+    protected $aliases = array();
 
-	/**
-	 * 扩展容器中已绑定或注册的对象， closures
-	 * 
-	 * @var array
-	 */
-	protected $extenders = array();
+    /**
+     * 扩展容器中已绑定或注册的对象， closures
+     * 
+     * @var array
+     */
+    protected $extenders = array();
 
-	/**
+    /**
      * 重新绑定对象到容器时的回调函数集合，
      *
      * @var array
      */
     protected $reboundCallbacks = array();
 
-	/**
+    /**
      * 判断给定的抽象类型是否已经绑定到容器上
      *
      * @param  string  $abstract
@@ -75,7 +75,7 @@ class Container implements ContainerInterface, ArrayAccess
      */
     public function bound($abstract)
     {
-    	$abstract = $this->normalize($abstract);
+        $abstract = $this->normalize($abstract);
 
         return isset($this->bindings[$abstract]) || isset($this->instances[$abstract]) || $this->isAlias($abstract);
     }
@@ -89,11 +89,11 @@ class Container implements ContainerInterface, ArrayAccess
      */
     public function alias($abstract, $alias)
     {
-    	if ($alias === $abstract) {
+        if ($alias === $abstract) {
             throw new \Exception("[{$abstract}] is aliased to itself.");
         }
 
-    	$this->aliases[$alias] = $this->normalize($abstract);
+        $this->aliases[$alias] = $this->normalize($abstract);
     }
 
     /**
@@ -108,31 +108,31 @@ class Container implements ContainerInterface, ArrayAccess
      */
     public function bind($abstract, $concrete = null, $shared = false)
     {
-    	$abstract = $this->normalize($abstract);
+        $abstract = $this->normalize($abstract);
 
-    	$concrete = $this->normalize($concrete);
+        $concrete = $this->normalize($concrete);
 
-    	//当给定的抽象类型是一个数组时([abstract => alias])， 则为该抽象类设置别名，
-    	if (is_array($abstract)) {
-    		list($abstract, $alias) = $this->extractAlias($abstract);
+        //当给定的抽象类型是一个数组时([abstract => alias])， 则为该抽象类设置别名，
+        if (is_array($abstract)) {
+            list($abstract, $alias) = $this->extractAlias($abstract);
 
-    		//注册抽象类 => 别名
-    		$this->alias($abstract, $alias);
-    	}
+            //注册抽象类 => 别名
+            $this->alias($abstract, $alias);
+        }
 
-    	//绑定（abstract => concrete）到容器时， 先删除容器中已存在的该抽象绑定
-    	$this->dropStaleInstances($abstract);
+        //绑定（abstract => concrete）到容器时， 先删除容器中已存在的该抽象绑定
+        $this->dropStaleInstances($abstract);
 
-    	//当给定的具体类型为空时 ($app->bind('some\Class'))，我们将简单的设置 抽象类型 = 具体类型， 
-    	//后续构造该抽象类型时，设置构造后的实列对象为 共享 状态
-    	if (is_null($concrete)) {
-    		$concrete = $abstract;
-    	}
+        //当给定的具体类型为空时 ($app->bind('some\Class'))，我们将简单的设置 抽象类型 = 具体类型， 
+        //后续构造该抽象类型时，设置构造后的实列对象为 共享 状态
+        if (is_null($concrete)) {
+            $concrete = $abstract;
+        }
 
-    	// 当给定的具体类型不是一个匿名函数时， 意味着该具体类型只是一个 类名，
-    	// 把该具体类型注册到容器中时， 用匿名函数包裹起来， 当其需要实列化时， 
-    	// 从容器上下文中获取更多的依赖来实列化他
-    	if (! $concrete instanceof Closure) {
+        // 当给定的具体类型不是一个匿名函数时， 意味着该具体类型只是一个 类名，
+        // 把该具体类型注册到容器中时， 用匿名函数包裹起来， 当其需要实列化时， 
+        // 从容器上下文中获取更多的依赖来实列化他
+        if (! $concrete instanceof Closure) {
             $concrete = $this->getClosure($abstract, $concrete);
         }
 
@@ -141,7 +141,7 @@ class Container implements ContainerInterface, ArrayAccess
 
         //若绑定到容器的对象先前已注册过， 则重新绑定
         if ($this->resolved($abstract)) {
-        	$this->rebound($abstract);
+            $this->rebound($abstract);
         }
     }
 
@@ -155,9 +155,9 @@ class Container implements ContainerInterface, ArrayAccess
      */
     public function bindIf($abstract, $concrete = null, $shared = false)
     {
-    	if (! $this->bound($abstract)) {
-    		$this->bind($abstract, $concrete, $shared);
-    	}
+        if (! $this->bound($abstract)) {
+            $this->bind($abstract, $concrete, $shared);
+        }
     }
 
     /**
@@ -169,7 +169,7 @@ class Container implements ContainerInterface, ArrayAccess
      */
     public function singleton($abstract, $concrete = null)
     {
-    	$this->bind($abstract, $concrete, true);
+        $this->bind($abstract, $concrete, true);
     }
 
     /**
@@ -183,7 +183,7 @@ class Container implements ContainerInterface, ArrayAccess
      */
     public function extend($abstract, Closure $closure)
     {
-    	$abstract = $this->normalize($abstract);
+        $abstract = $this->normalize($abstract);
 
         if (isset($this->instances[$abstract])) {
             $this->instances[$abstract] = $closure($this->instances[$abstract], $this);
@@ -317,7 +317,7 @@ class Container implements ContainerInterface, ArrayAccess
      */
     public function instance($abstract, $instance)
     {
-    	$abstract = $this->normalize($abstract);
+        $abstract = $this->normalize($abstract);
 
         if (is_array($abstract)) {
             list($abstract, $alias) = $this->extractAlias($abstract);
@@ -346,22 +346,22 @@ class Container implements ContainerInterface, ArrayAccess
      */
     public function make($abstract, array $parameters = array())
     {
-    	$abstract = $this->getAlias($this->normalize($abstract));
+        $abstract = $this->getAlias($this->normalize($abstract));
 
-    	//反复make同一抽象时， 返回同一个对象
-    	if (isset($this->instances[$abstract]) && !is_null($this->instances[$abstract])) {
-    		return $this->instances[$abstract];
-    	}
+        //反复make同一抽象时， 返回同一个对象
+        if (isset($this->instances[$abstract]) && !is_null($this->instances[$abstract])) {
+            return $this->instances[$abstract];
+        }
 
-    	//获取抽象类对应的具体对象
-    	$concrete = $this->getConcrete($abstract);
+        //获取抽象类对应的具体对象
+        $concrete = $this->getConcrete($abstract);
 
-    	//当前具体类型是可以build时，
-    	if ($this->isBuildable($concrete, $abstract)) {
-    		$object = $this->build($concrete, $parameters);
-    	} else {
-    		$object = $this->make($concrete, $parameters);
-    	}
+        //当前具体类型是可以build时，
+        if ($this->isBuildable($concrete, $abstract)) {
+            $object = $this->build($concrete, $parameters);
+        } else {
+            $object = $this->make($concrete, $parameters);
+        }
 
         //若容器中有该具体类的扩展回调
         foreach ($this->getExtenders($abstract) as $extender) {
@@ -386,32 +386,32 @@ class Container implements ContainerInterface, ArrayAccess
      */
     public function build($concrete, array $parameters = array())
     {
-    	// 当具体类型是一个Closure类型时， 直接返回函数的返回值
-    	if ($concrete instanceof Closure) { 
-    		return $concrete($this, $parameters);
-    	}
+        // 当具体类型是一个Closure类型时， 直接返回函数的返回值
+        if ($concrete instanceof Closure) { 
+            return $concrete($this, $parameters);
+        }
 
-    	$reflector = new ReflectionClass($concrete);
+        $reflector = new ReflectionClass($concrete);
 
-    	//具体类型是不可实例化的 - 直接报错
-    	if (! $reflector->isInstantiable()) {
-    		throw new \Exception("Target [$concrete] is not instantiable");
-    	}
+        //具体类型是不可实例化的 - 直接报错
+        if (! $reflector->isInstantiable()) {
+            throw new \Exception("Target [$concrete] is not instantiable");
+        }
 
-    	//获取类的构造函数 返回一个 ReflectionMethod 对象，反射了类的构造函数，
-    	//或者当类不存在构造函数时返回 NULL。
-    	$constructor = $reflector->getConstructor();
+        //获取类的构造函数 返回一个 ReflectionMethod 对象，反射了类的构造函数，
+        //或者当类不存在构造函数时返回 NULL。
+        $constructor = $reflector->getConstructor();
 
-    	// 不存在构造函数， 直接实例化
-    	if (is_null($constructor)) {
-    		return new $concrete;
-    	}
+        // 不存在构造函数， 直接实例化
+        if (is_null($constructor)) {
+            return new $concrete;
+        }
 
-    	//构造函数参数 返回 ReflectionParameter对象构成的array 
-    	$dependencies = $constructor->getParameters();
+        //构造函数参数 返回 ReflectionParameter对象构成的array 
+        $dependencies = $constructor->getParameters();
 
-    	// 构建构造函数参数通过传入的参数，
-    	$parameters = $this->keyParametersByArgument(
+        // 构建构造函数参数通过传入的参数，
+        $parameters = $this->keyParametersByArgument(
             $dependencies, $parameters
         );
 
@@ -430,13 +430,13 @@ class Container implements ContainerInterface, ArrayAccess
      */
     public function resolved($abstract)
     {
-    	$abstract = $this->normalize($abstract);
+        $abstract = $this->normalize($abstract);
 
-    	if ($this->isAlias($abstract)) {
-    		$abstract = $this->getAlias($abstract);
-    	}
+        if ($this->isAlias($abstract)) {
+            $abstract = $this->getAlias($abstract);
+        }
 
-    	return isset($this->resoleved[$abstract]) || isset($this->instances[$abstract]);
+        return isset($this->resoleved[$abstract]) || isset($this->instances[$abstract]);
     }
 
     /**
@@ -493,7 +493,7 @@ class Container implements ContainerInterface, ArrayAccess
      */
     protected function extractAlias(array $alias)
     {
-    	return array(key($alias), current($alias));
+        return array(key($alias), current($alias));
     }
 
     /**
@@ -504,7 +504,7 @@ class Container implements ContainerInterface, ArrayAccess
      */
     protected function dropStaleInstances($abstract)
     {
-    	unset($this->instances[$abstract], $this->aliases[$abstract]);
+        unset($this->instances[$abstract], $this->aliases[$abstract]);
     }
 
     /**
@@ -516,11 +516,11 @@ class Container implements ContainerInterface, ArrayAccess
      */
     protected function getClosure($abstract, $concrete)
     {
-    	return function ($container, array $parameters = array()) use ($abstract, $concrete) {
-    		$method = ($abstract == $concrete) ? 'build' : 'make';
+        return function ($container, array $parameters = array()) use ($abstract, $concrete) {
+            $method = ($abstract == $concrete) ? 'build' : 'make';
 
             return $container->$method($concrete, $parameters);
-    	};
+        };
     }
 
     /**
@@ -531,7 +531,7 @@ class Container implements ContainerInterface, ArrayAccess
      */
     public function getAlias($abstract)
     {
-    	if (! isset($this->aliases[$abstract])) {
+        if (! isset($this->aliases[$abstract])) {
             return $abstract;
         }
 
@@ -546,14 +546,14 @@ class Container implements ContainerInterface, ArrayAccess
      */
     protected function rebound($abstract)
     {
-    	//通过给定的抽象类型 - 实例化具体对象
-    	$instance = $this->make($abstract);
+        //通过给定的抽象类型 - 实例化具体对象
+        $instance = $this->make($abstract);
 
-    	//当我们在重新绑定实列到容器中时， 可也为每个从新绑定定义回调函数，
-    	//方便对象在重新绑定回容器时， 对其进行炒作
-    	foreach ($this->getReboundCallbacks($abstract) as $callback) {
-    		call_user_func($callback, $this, $instance);
-    	}
+        //当我们在重新绑定实列到容器中时， 可也为每个从新绑定定义回调函数，
+        //方便对象在重新绑定回容器时， 对其进行炒作
+        foreach ($this->getReboundCallbacks($abstract) as $callback) {
+            call_user_func($callback, $this, $instance);
+        }
     }
 
     /**
@@ -564,11 +564,11 @@ class Container implements ContainerInterface, ArrayAccess
      */
     protected function getExtenders($abstract)
     {
-    	if (isset($this->extenders[$abstract])) {
-    		return $this->extenders[$abstract];
-    	}
+        if (isset($this->extenders[$abstract])) {
+            return $this->extenders[$abstract];
+        }
 
-    	return array();
+        return array();
     }
 
     /**
@@ -579,18 +579,18 @@ class Container implements ContainerInterface, ArrayAccess
      */
     protected function isShared($abstract)
     {
-    	$abstract = $this->normalize($abstract);
+        $abstract = $this->normalize($abstract);
 
-    	//存在实列集合中， 肯定是共享的
-    	if (isset($this->instances[$abstract])) {
-    		return true;
-    	}
+        //存在实列集合中， 肯定是共享的
+        if (isset($this->instances[$abstract])) {
+            return true;
+        }
 
-    	if (! isset($this->bindings[$abstract]['shared'])) {
-    		return false;
-    	}
+        if (! isset($this->bindings[$abstract]['shared'])) {
+            return false;
+        }
 
-    	return $this->bindings[$abstract]['shared'] === true;
+        return $this->bindings[$abstract]['shared'] === true;
     }
 
     /**
@@ -601,13 +601,13 @@ class Container implements ContainerInterface, ArrayAccess
      */
     public function getConcrete($abstract)
     {
-    	// 当给定的抽象类型没有在容器中绑定时， 直接返回抽象类型
-    	// 如当$app->make('SomeClass\Class')时， 直接返回具体类型为 SomeClass\Class
-    	if (! isset($this->bindings[$abstract])) {
-    		return $abstract;
-    	}
+        // 当给定的抽象类型没有在容器中绑定时， 直接返回抽象类型
+        // 如当$app->make('SomeClass\Class')时， 直接返回具体类型为 SomeClass\Class
+        if (! isset($this->bindings[$abstract])) {
+            return $abstract;
+        }
 
-    	return $this->bindings[$abstract]['concrete'];
+        return $this->bindings[$abstract]['concrete'];
     }
 
     /**
@@ -619,7 +619,7 @@ class Container implements ContainerInterface, ArrayAccess
      */
     public function isBuildable($concrete, $abstract)
     {
-    	return $concrete === $abstract || $concrete instanceof Closure;
+        return $concrete === $abstract || $concrete instanceof Closure;
     }
 
     /**
@@ -630,7 +630,7 @@ class Container implements ContainerInterface, ArrayAccess
      */
     public function getReboundCallbacks($abstract)
     {
-    	if (isset($this->reboundCallbacks[$abstract])) {
+        if (isset($this->reboundCallbacks[$abstract])) {
             return $this->reboundCallbacks[$abstract];
         }
 
@@ -648,15 +648,15 @@ class Container implements ContainerInterface, ArrayAccess
      */
     public function keyParametersByArgument(array $dependencies, array $parameters)
     {
-    	foreach ($parameters as $key => $value) {
-    		if (is_numeric($key)) {
-    			unset($parameters[$key]);
+        foreach ($parameters as $key => $value) {
+            if (is_numeric($key)) {
+                unset($parameters[$key]);
 
-    			$parameters[$dependencies[$key]->name] = $value;
-    		}
-    	}
+                $parameters[$dependencies[$key]->name] = $value;
+            }
+        }
 
-    	return $parameters;
+        return $parameters;
     }
 
     /**
@@ -668,21 +668,21 @@ class Container implements ContainerInterface, ArrayAccess
      */
     protected function getDependencies(array $dependencies, array $parameters)
     {
-    	$dependenciesArr = array();
+        $dependenciesArr = array();
 
-    	foreach ($dependencies as $parameter) {
-    		$dependency = $parameter->getClass();
+        foreach ($dependencies as $parameter) {
+            $dependency = $parameter->getClass();
 
-    		if (array_key_exists($parameter->name, $parameters)) {
+            if (array_key_exists($parameter->name, $parameters)) {
                 $dependenciesArr[] = $parameters[$parameter->name];
             } elseif (is_null($dependency)) {
                 $dependenciesArr[] = $this->resolveNonClass($parameter);
             } else {
                 $dependenciesArr[] = $this->resolveClass($parameter);
             }
-    	}
+        }
 
-    	return $dependenciesArr;
+        return $dependenciesArr;
     }
 
     /**
@@ -693,7 +693,7 @@ class Container implements ContainerInterface, ArrayAccess
      */
     protected function resolveNonClass(ReflectionParameter $parameter)
     {
-    	if ($parameter->isDefaultValueAvailable()) {
+        if ($parameter->isDefaultValueAvailable()) {
             return $parameter->getDefaultValue();
         }
 
@@ -709,7 +709,7 @@ class Container implements ContainerInterface, ArrayAccess
      */
     protected function resolveClass(ReflectionParameter $parameter)
     {
-    	try {
+        try {
             return $this->make($parameter->getClass()->name);
         }
 
