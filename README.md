@@ -11,7 +11,7 @@ composer require godruoyi/laravel-container
 
 ## Usage
 
-Creating a container
+Creating a container instance
 
 ```php
 
@@ -34,7 +34,7 @@ $instance = $app['alias'];
 
 //use Closure
 $app->bind(['abstract' => 'alias'], function(){
-	return new YourClass();
+    return new YourClass();
 });
 $instance = $app['alias'];
 
@@ -74,9 +74,10 @@ $app['abstract']->hasModify;//true
 
 ```php
 
-$app->bind('abstract', new Class());
+$instance = new SomeClass();
+$app->instance('instance', $instance);
 
-$app['abstract'] === $app['abstract']; //true
+$app['instance'] === $instance; //true
 
 ```
 
