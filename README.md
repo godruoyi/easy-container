@@ -61,9 +61,9 @@ When you register a shared binding in the container, you well get same object
 $app->bind('abstract', YourClass::class);
 
 $app->extend('abstract', function($instance, $container){
-	$instance->hasModify = true;
+    $instance->hasModify = true;
 
-	return $instance;
+    return $instance;
 });
 
 $app['abstract']->hasModify;//true
