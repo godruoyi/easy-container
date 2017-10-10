@@ -3,17 +3,15 @@
 namespace Godruoyi\Container;
 
 use Closure;
+use Psr\Container\ContainerInterface as BaseContainerInterface;
 
-/**
- * Code from laravel - Illuminate\Contracts\Container
- * 
- */
-interface ContainerInterface
+interface ContainerInterface extends BaseContainerInterface
 {
     /**
      * Determine if the given abstract type has been bound.
      *
      * @param  string  $abstract
+     * 
      * @return bool
      */
     public function bound($abstract);
@@ -23,6 +21,7 @@ interface ContainerInterface
      *
      * @param  string  $abstract
      * @param  string  $alias
+     * 
      * @return void
      */
     public function alias($abstract, $alias);
@@ -33,6 +32,7 @@ interface ContainerInterface
      * @param  string|array  $abstract
      * @param  \Closure|string|null  $concrete
      * @param  bool  $shared
+     * 
      * @return void
      */
     public function bind($abstract, $concrete = null, $shared = false);
@@ -43,6 +43,7 @@ interface ContainerInterface
      * @param  string  $abstract
      * @param  \Closure|string|null  $concrete
      * @param  bool  $shared
+     * 
      * @return void
      */
     public function bindIf($abstract, $concrete = null, $shared = false);
@@ -52,6 +53,7 @@ interface ContainerInterface
      *
      * @param  string|array  $abstract
      * @param  \Closure|string|null  $concrete
+     * 
      * @return void
      */
     public function singleton($abstract, $concrete = null);
@@ -72,6 +74,7 @@ interface ContainerInterface
      *
      * @param  string  $abstract
      * @param  mixed   $instance
+     * 
      * @return void
      */
     public function instance($abstract, $instance);
@@ -81,6 +84,7 @@ interface ContainerInterface
      *
      * @param  string  $abstract
      * @param  array   $parameters
+     * 
      * @return mixed
      */
     public function make($abstract, array $parameters = array());
@@ -91,6 +95,7 @@ interface ContainerInterface
      * @param  callable|string  $callback
      * @param  array  $parameters
      * @param  string|null  $defaultMethod
+     * 
      * @return mixed
      */
     public function call($callback, array $parameters = array(), $defaultMethod = null);
@@ -99,25 +104,8 @@ interface ContainerInterface
      * Determine if the given abstract type has been resolved.
      *
      * @param  string $abstract
+     * 
      * @return bool
      */
     public function resolved($abstract);
-
-    /**
-     * Register a new resolving callback.
-     *
-     * @param  string    $abstract
-     * @param  \Closure|null  $callback
-     * @return void
-     */
-    public function resolving($abstract, Closure $callback = null);
-
-    /**
-     * Register a new after resolving callback.
-     *
-     * @param  string    $abstract
-     * @param  \Closure|null  $callback
-     * @return void
-     */
-    public function afterResolving($abstract, Closure $callback = null);
 }

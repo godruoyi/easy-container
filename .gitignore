@@ -1,2 +1,4 @@
 /vendor/
-/test/
+/tests
+.composer.lock
+test.phhp

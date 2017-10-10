@@ -10,12 +10,6 @@ use ReflectionMethod;
 use ReflectionFunction;
 use ReflectionParameter;
 
-/**
- * 参考自 laravel - Illuminate\Container\Container
- *
- * 简化部分逻辑， 添加中文注释
- * 
- */
 class Container implements ContainerInterface, ArrayAccess
 {
     /**
@@ -71,6 +65,7 @@ class Container implements ContainerInterface, ArrayAccess
      * 判断给定的抽象类型是否已经绑定到容器上
      *
      * @param  string  $abstract
+     * 
      * @return bool
      */
     public function bound($abstract)
@@ -85,6 +80,7 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @param  string  $abstract
      * @param  string  $alias
+     * 
      * @return void
      */
     public function alias($abstract, $alias)
@@ -96,6 +92,16 @@ class Container implements ContainerInterface, ArrayAccess
         $this->aliases[$alias] = $this->normalize($abstract);
     }
 
+    public function has($id)
+    {
+        return $this->offsetExists($id);
+    }
+
+    public function get($id)
+    {
+        return $this[$id];
+    }
+
     /**
      * 绑定一个抽象类到容器中
      *
@@ -104,6 +110,7 @@ class Container implements ContainerInterface, ArrayAccess
      * @param  bool  $shared 绑定到容器的对象是否共享， 即后续取出的对象是否为同一对象 
      *                       $app['someClass'] === $app['someClass'] //true
      *                       shared为true时表示每次向容器取出同一对象
+     * 
      * @return void
      */
     public function bind($abstract, $concrete = null, $shared = false)
@@ -151,6 +158,7 @@ class Container implements ContainerInterface, ArrayAccess
      * @param  string  $abstract
      * @param  \Closure|string|null  $concrete
      * @param  bool  $shared
+     * 
      * @return void
      */
     public function bindIf($abstract, $concrete = null, $shared = false)
@@ -165,6 +173,7 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @param  string|array  $abstract
      * @param  \Closure|string|null  $concrete
+     * 
      * @return void
      */
     public function singleton($abstract, $concrete = null)
@@ -177,6 +186,7 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @param  string    $abstract
      * @param  \Closure  $closure
+     * 
      * @return void
      *
      * @throws \InvalidArgumentException
@@ -200,6 +210,7 @@ class Container implements ContainerInterface, ArrayAccess
      * @param  callable|string  $callback
      * @param  array  $parameters
      * @param  string|null  $defaultMethod
+     * 
      * @return mixed
      */
     public function call($callback, array $parameters = array(), $defaultMethod = null)
@@ -217,6 +228,7 @@ class Container implements ContainerInterface, ArrayAccess
      * Determine if the given string is in Class@method syntax.
      *
      * @param  mixed  $callback
+     * 
      * @return bool
      */
     protected function isCallableWithAtSign($callback)
@@ -229,6 +241,7 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @param  callable|string  $callback
      * @param  array  $parameters
+     * 
      * @return array
      */
     protected function getMethodDependencies($callback, array $parameters = array())
@@ -246,6 +259,7 @@ class Container implements ContainerInterface, ArrayAccess
      * Get the proper reflection instance for the given callback.
      *
      * @param  callable|string  $callback
+     * 
      * @return \ReflectionFunctionAbstract
      */
     protected function getCallReflector($callback)
@@ -267,6 +281,7 @@ class Container implements ContainerInterface, ArrayAccess
      * @param  \ReflectionParameter  $parameter
      * @param  array  $parameters
      * @param  array  $dependencies
+     * 
      * @return mixed
      */
     protected function addDependencyForCallParameter(ReflectionParameter $parameter, array &$parameters, &$dependencies)
@@ -288,6 +303,7 @@ class Container implements ContainerInterface, ArrayAccess
      * @param  string  $target
      * @param  array  $parameters
      * @param  string|null  $defaultMethod
+     * 
      * @return mixed
      *
      * @throws \Exception
@@ -313,6 +329,7 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @param  string  $abstract
      * @param  mixed   $instance
+     * 
      * @return void
      */
     public function instance($abstract, $instance)
@@ -342,6 +359,7 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @param  string  $abstract
      * @param  array   $parameters
+     * 
      * @return mixed
      */
     public function make($abstract, array $parameters = array())
@@ -382,6 +400,7 @@ class Container implements ContainerInterface, ArrayAccess
      * 
      * @param  mixed $concrete  
      * @param  array  $parameters
+     * 
      * @return mixed
      */
     public function build($concrete, array $parameters = array())
@@ -426,6 +445,7 @@ class Container implements ContainerInterface, ArrayAccess
      * 判断给定的抽象类型/别名 是否在容器中已是解决的
      *
      * @param  string $abstract
+     * 
      * @return bool
      */
     public function resolved($abstract)
@@ -440,33 +460,10 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * Register a new resolving callback.
-     *
-     * @param  string    $abstract
-     * @param  \Closure|null  $callback
-     * @return void
-     */
-    public function resolving($abstract, Closure $callback = null)
-    {
-
-    }
-
-    /**
-     * Register a new after resolving callback.
-     *
-     * @param  string    $abstract
-     * @param  \Closure|null  $callback
-     * @return void
-     */
-    public function afterResolving($abstract, Closure $callback = null)
-    {
-
-    }
-
-    /**
      * 规范化给定的类名 - 通过删除前面的反斜杠
      *
      * @param  mixed  $service
+     * 
      * @return mixed
      */
     protected function normalize($service)
@@ -478,6 +475,7 @@ class Container implements ContainerInterface, ArrayAccess
      * 判断给定的抽象类是否在 容器-笔名数组中注册
      *
      * @param  string  $name
+     * 
      * @return bool
      */
     public function isAlias($name)
@@ -489,6 +487,7 @@ class Container implements ContainerInterface, ArrayAccess
      * 提取别名
      * 
      * @param  array  $alias
+     * 
      * @return array
      */
     protected function extractAlias(array $alias)
@@ -500,6 +499,7 @@ class Container implements ContainerInterface, ArrayAccess
      * 删除容器中陈旧的实列对象 - 根据给定的抽象类型, (只删除实列对象)
      * 
      * @param  string $abstract
+     * 
      * @return void
      */
     protected function dropStaleInstances($abstract)
@@ -512,6 +512,7 @@ class Container implements ContainerInterface, ArrayAccess
      * 
      * @param  string $abstract
      * @param  string $concrete
+     * 
      * @return \Closure
      */
     protected function getClosure($abstract, $concrete)
@@ -527,6 +528,7 @@ class Container implements ContainerInterface, ArrayAccess
      * 根据给定的抽象类获取别名
      * 
      * @param  string $abstract
+     * 
      * @return string          
      */
     public function getAlias($abstract)
@@ -542,6 +544,7 @@ class Container implements ContainerInterface, ArrayAccess
      * 重新绑定给定的抽象类到容器中， 
      * 
      * @param string $abstract
+     * 
      * @return void
      */
     protected function rebound($abstract)
@@ -560,6 +563,7 @@ class Container implements ContainerInterface, ArrayAccess
      * 通过给定的抽象类型获取扩展回调
      * 
      * @param  string $abstract
+     * 
      * @return array     
      */
     protected function getExtenders($abstract)
@@ -575,6 +579,7 @@ class Container implements ContainerInterface, ArrayAccess
      * 判断给定的抽象类， 当其实列化对应的具体对象时， 该对象是否是共享的
      * 
      * @param  string  $abstract
+     * 
      * @return boolean          
      */
     protected function isShared($abstract)
@@ -597,6 +602,7 @@ class Container implements ContainerInterface, ArrayAccess
      * 根据抽象类型获取具体类型
      * 
      * @param  string $abstract
+     * 
      * @return mixed
      */
     public function getConcrete($abstract)
@@ -615,6 +621,7 @@ class Container implements ContainerInterface, ArrayAccess
      * 
      * @param  mixed $concrete
      * @param  string $abstract
+     * 
      * @return boolean          
      */
     public function isBuildable($concrete, $abstract)
@@ -626,6 +633,7 @@ class Container implements ContainerInterface, ArrayAccess
      * 获取重新绑定时的回调数组
      * 
      * @param  string $abstract 
+     * 
      * @return array           
      */
     public function getReboundCallbacks($abstract)
@@ -644,6 +652,7 @@ class Container implements ContainerInterface, ArrayAccess
      * 
      * @param  array $dependencies 具体类型的构造函数参数数组
      * @param  array $parameters   传入的参数数组
+     * 
      * @return array
      */
     public function keyParametersByArgument(array $dependencies, array $parameters)
@@ -664,6 +673,7 @@ class Container implements ContainerInterface, ArrayAccess
      * 
      * @param  array  $dependencies 构造函数依赖的参数
      * @param  array  $parameters    传入的参数
+     * 
      * @return 
      */
     protected function getDependencies(array $dependencies, array $parameters)
@@ -689,6 +699,7 @@ class Container implements ContainerInterface, ArrayAccess
      * 解决没有类的构造函数
      * 
      * @param  ReflectionParameter $parameter
+     * 
      * @return 
      */
     protected function resolveNonClass(ReflectionParameter $parameter)
@@ -705,6 +716,7 @@ class Container implements ContainerInterface, ArrayAccess
      * 解决构造函数含有其他类参数的情况
      * 
      * @param  ReflectionParameter $parameter
+     * 
      * @return 
      */
     protected function resolveClass(ReflectionParameter $parameter)
@@ -726,6 +738,7 @@ class Container implements ContainerInterface, ArrayAccess
      * Determine if a given offset exists.
      *
      * @param  string  $key
+     * 
      * @return bool
      */
     public function offsetExists($key)
@@ -737,6 +750,7 @@ class Container implements ContainerInterface, ArrayAccess
      * Get the value at a given offset.
      *
      * @param  string  $key
+     * 
      * @return mixed
      */
     public function offsetGet($key)
@@ -749,6 +763,7 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @param  string  $key
      * @param  mixed   $value
+     * 
      * @return void
      */
     public function offsetSet($key, $value)
@@ -769,6 +784,7 @@ class Container implements ContainerInterface, ArrayAccess
      * Unset the value at a given offset.
      *
      * @param  string  $key
+     * 
      * @return void
      */
     public function offsetUnset($key)
@@ -782,6 +798,7 @@ class Container implements ContainerInterface, ArrayAccess
      * Dynamically access container services.
      *
      * @param  string  $key
+     * 
      * @return mixed
      */
     public function __get($key)
@@ -794,6 +811,7 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @param  string  $key
      * @param  mixed   $value
+     * 
      * @return void
      */
     public function __set($key, $value)

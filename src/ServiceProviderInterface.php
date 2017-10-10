@@ -2,7 +2,7 @@
 
 namespace Godruoyi\Container;
 
-use Godruoyi\Container\Container;
+use Godruoyi\Container\ContainerInterface;
 
 /**
  * service provider interface.
@@ -19,5 +19,5 @@ interface ServiceProviderInterface
      *
      * @param Container $container A container instance
      */
-    public function register(Container $container);
+    public function register(ContainerInterface $container);
 }
