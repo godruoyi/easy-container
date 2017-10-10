@@ -1,17 +1,25 @@
-# Laravel-Container
+# Simple Container
 
-A small PHP 5.3 dependency injection container from Laravel Container
+A small PHP 5.3 dependency injection container
 
 ## Installation
 
 ```
-composer require godruoyi/laravel-container
+composer require godruoyi/container
 
 ```
 
+## Support
+
+ - bind
+ - make
+ - call
+ - singleton
+ - extend
+
 ## Usage
 
-Creating a container instance
+Creating a container instance:
 
 ```php
 
@@ -25,18 +33,25 @@ $app = new Container();
 
 ```php
 
-$app->bind('abstract', 'Your\Class::class');
-$instance = $app['abstract'];
+interface Cache {}
 
-//use alias
-$app->bind(['abstract' => 'alias'], 'Your\Class::class');
-$instance = $app['alias'];
+class Redis implements Cache {}
 
-//use Closure
-$app->bind(['abstract' => 'alias'], function(){
-    return new YourClass();
+$app->bind(Cache::class, new Redis);
+
+$redis = $app[Cache::class];//The Redis Instance
+
+```
+
+### use Closure
+
+```php
+
+$app->bind(Cache::class, function () {
+    return new Redis;
 });
-$instance = $app['alias'];
+
+$redis = $app[Cache::class];//The Redis Instance
 
 ```
 
