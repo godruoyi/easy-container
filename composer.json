@@ -1,8 +1,8 @@
 {
     "name": "godruoyi/easy-container",
     "description": "A small PHP 5.3 dependency injection container extended from Laravel container.",
-    "keywords": ["dependency injection", "container"],
-    "homepage": "http://github.com/godruoyi/container",
+    "keywords": ["dependency injection", "container", "ioc", "ioc-container", "laravel container", "laravel"],
+    "homepage": "http://github.com/godruoyi/easy-container",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -12,7 +12,7 @@
         }
     ],
     "require": {
-        "php": ">=5.6",
+        "php": ">=5.3",
         "psr/container": "^1.0"
     },
     "autoload": {
