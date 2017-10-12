@@ -13,7 +13,7 @@ use ReflectionParameter;
 class Container implements ContainerInterface, ArrayAccess
 {
     /**
-     * 容器实列对象
+     * 容器实例对象
      * 
      * @var static
      */
@@ -41,7 +41,7 @@ class Container implements ContainerInterface, ArrayAccess
     protected $instances = array();
 
     /**
-     * 注册一个 笔名 => 对应的类 到容器中
+     * 注册一个 别名 => 对应的类 到容器中
      * 
      * @var array
      */
