@@ -24,7 +24,6 @@ class Config
 
 // 不支持
 $cache = $container->make('Cache');
-
 ```
 
 > Pimple 不支持自动注入依赖参数，当你需要的对象依赖其他对象时，你只能依次实例化所需参数。
@@ -33,7 +32,7 @@ $cache = $container->make('Cache');
 
 > 如果你有留意该组件下的 `composer.json` 文件，你会发现他依赖 [illuminate/contracts](https://github.com/illuminate/contracts) 组件。（[参见](https://github.com/laravel/framework/issues/21435)）
 
-基于此，诞生了 [easy-container](https://github.com/godruoyi/easy-container)，该项目代码大部分依赖与 [Laravel Container](https://github.com/illuminate/container) :smile:。你可以像使用 `Laravel Container` 容器般来使用它。
+基于此，诞生了 [easy-container](https://github.com/godruoyi/easy-container)，该项目代码大部分依赖于 [Laravel Container](https://github.com/illuminate/container) :smile:。你可以像使用 `Laravel Container` 容器般来使用它。
 
 # 安装
 
@@ -43,8 +42,7 @@ composer require godruoyi/easy-container
 
 # 使用
 
-你可以前往 `Laravel-china` 获取更多关于[容器的使用](https://d.laravel-china.org/docs/5.5/container)帮助。
-
+你可以前往 [Laravel-china](https://laravel-china.org) 获取更多关于 [容器使用](https://d.laravel-china.org/docs/5.5/container) 的帮助。
 
 初始化容器
 
@@ -54,7 +52,7 @@ $app = new Godruoyi\Container\Container;
 
 ```
 
-> 以下文档来自 laravel-china
+> 以下文档支持来自 [laravel-china](https://d.laravel-china.org/docs/5.5/container)，转载请注明出处。
 
 #### 简单绑定
 
@@ -86,13 +84,13 @@ $app->singleton('HelpSpot\API', function ($app) {
 
     $api = new HelpSpot\API(new HttpClient);
 
-    $this->app->instance('HelpSpot\API', $api);
+    $app->instance('HelpSpot\API', $api);
 
 ### 绑定接口到实现
 
 服务容器有一个强大的功能，就是将接口绑定到给定实现。例如，如果我们有一个 `EventPusher` 接口和一个 `RedisEventPusher` 实现。编写完接口的 `RedisEventPusher` 实现后，我们就可以在服务容器中注册它，像这样：
 
-    $this->app->bind(
+    $app->bind(
         'App\Contracts\EventPusher',
         'App\Services\RedisEventPusher'
     );
@@ -118,7 +116,23 @@ $app->singleton('HelpSpot\API', function ($app) {
 
 你可以使用 `make` 方法将容器中的类实例解析出来 (无论该对象需要什么类型的参数)。`make` 方法接受要解析的类或接口的名称：
 
-    $api = $this->app->make('HelpSpot\API');
+    $api = $app->make('HelpSpot\API');
+
+`mark` 方法是我认为最重要的方法，你可以简单地使用「类型提示」的方式在由容器解析的类的构造函数中添加依赖项，容器将自动解析你所需要的一切参数。
+
+```php
+
+// 自动解析UserController构造函数所需的依赖
+$userController = $app->make(UserController::class);
+
+class UserController
+{
+    public function __construct(UserRepository $users, HttpClient $client, $other = 'default')
+    {
+    }
+}
+
+```
 
 ## PSR-11
 
@@ -126,12 +140,12 @@ Laravel 的服务容器实现了 [PSR-11](https://github.com/php-fig/fig-standar
 
     use Psr\Container\ContainerInterface;
 
-    Route::get('/', function (ContainerInterface $container) {
-        $service = $container->get('Service');
-
-        //
-    });
+    $service = $app->get('Service');
 
 # LISTEN
 
 MIT
+
+# Thanks
+
+[laravel-china](https://laravel-china.org)

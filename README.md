@@ -1,107 +1,151 @@
-# Simple Container
+# A simple service container.
 
-A small PHP 5.3 dependency injection container
+A Simple `php 5.3` Dependency-Injecting Container.
 
-## Installation
+[中文文档](https://github.com/godruoyi/easy-container/blob/master/README_zh-CN.md)
 
-```
-composer require godruoyi/container
+# Why
 
-```
+Currently more popular `php` container:
 
-## Support
+ - [Pimple](https://pimple.symfony.com/)
+ - [Laravel Container](https://github.com/illuminate/container)
+ - [Other Dependency-injection Container](https://github.com/ziadoz/awesome-php#dependency-injection)
 
- - bind
- - make
- - call
- - singleton
- - extend
-
-## Usage
-
-Creating a container instance:
+`Pimple` is a simple and excellent `php 5.3` container, which is also the most used service container, and the installed capacity of [packagist](https://packagist.org/packages/pimple/pimple) is also up to `1000W+` .But `Pimple` just a simple service container that does not support many features such as:
 
 ```php
+class Cache
+{
+    public function __construct(Config $config){}
+}
 
-use Godruoyi\Container\Container;
+class Config
+{
+}
 
-$app = new Container();
-
+// not support
+$cache = $container->make('Cache');
 ```
 
-### Bind a abstract type to container
+> Pimple Does not support the automatic injection of dependency parameters, when you need to rely on other objects object, you can only instantiate the required parameters.
 
-```php
+`Laravel Container` is the most full-featured service container, including auto-injection, load-loading, alias, TAG, and so so. But the official does not recommend using the component in non-laravel project.
 
-interface Cache {}
+> If you have noticed the `composer.json` file under that component，You will find that he depends on the [illuminate/contracts](https://github.com/illuminate/contracts) component.([see also](https://github.com/laravel/framework/issues/21435))
 
-class Redis implements Cache {}
+Based on this, [easy-container](https://github.com/godruoyi/easy-container) was born, and the project code relied heavily on [Laravel Container](https://github.com/illuminate/container) :smile: :smile: . You can use it like a `Laravel Container` container.
 
-$app->bind(Cache::class, new Redis);
+# Install
 
-$redis = $app[Cache::class];//The Redis Instance
-
+```shell
+composer require godruoyi/easy-container
 ```
 
-### use Closure
+# Use
+
+You can get more help with [container usage](https://laravel.com/docs/5.5/container) at [laravel.com](https://laravel.com).
+
+Initialize the container.
 
 ```php
+$app = new Godruoyi\Container\Container;
+```
 
-$app->bind(Cache::class, function () {
-    return new Redis;
+> The following documents support from [laravel.com](https://laravel.com/docs/5.5/container), reproduced please indicate the source.
+
+#### Simple Bindings
+
+We can register a binding using the `bind` method, passing the class or interface name that we wish to register along with a `Closure` that returns an instance of the class:
+
+```php
+$app->bind('HelpSpot\API', function ($app) {
+    return new HelpSpot\API($app->make('HttpClient'));
 });
-
-$redis = $app[Cache::class];//The Redis Instance
-
 ```
 
-### Register A shared binding in the container
+> Note,All anonymous functions accept the service container instance as a parameter.
+
+#### Binding A Singleton
+
+The `singleton` method binds a class or interface into the container that should only be resolved one time. Once a singleton binding is resolved, the same object instance will be returned on subsequent calls into the container:
 
 ```php
-
-$app->singleton('abstract', YourClass::class);
-
-$one = $app['abstract'];
-$two = $app['abstract'];
-
-$one === $two; //true
-
-```
-When you register a shared binding in the container, you well get same object
-
-### Extend a abstract use Closure
-
-```php
-
-$app->bind('abstract', YourClass::class);
-
-$app->extend('abstract', function($instance, $container){
-    $instance->hasModify = true;
-
-    return $instance;
+$app->singleton('HelpSpot\API', function ($app) {
+    return new HelpSpot\API($app->make('HttpClient'));
 });
-
-$app['abstract']->hasModify;//true
-
 ```
 
-### Register an existing instance as shared in the container.
+> Each time you call `$app['HelpSpot\API']` will return the same object.
+
+#### Binding A Singleton
+
+The `singleton` method binds a class or interface into the container that should only be resolved one time. Once a singleton binding is resolved, the same object instance will be returned on subsequent calls into the container:
+
+    $api = new HelpSpot\API(new HttpClient);
+
+    $app->instance('HelpSpot\API', $api);
+
+### Binding Interfaces To Implementations
+
+A very powerful feature of the service container is its ability to bind an interface to a given implementation. For example, let's assume we have an `EventPusher` interface and a `RedisEventPusher` implementation. Once we have coded our `RedisEventPusher` implementation of this interface, we can register it with the service container like so:
+
+    $app->bind(
+        'App\Contracts\EventPusher',
+        'App\Services\RedisEventPusher'
+    );
+
+This statement tells the container that it should inject the `RedisEventPusher` when a class needs an implementation of `EventPusher`. Now we can type-hint the `EventPusher` interface in a constructor, or any other location where dependencies are injected by the service container:
+
+    use App\Contracts\EventPusher;
+
+    /**
+     * Create a new instance of the class, which will be injected into the App\Services\RedisEventPusher instance.
+     *
+     * @param  EventPusher  $pusher
+     * @return void
+     */
+    public function __construct(EventPusher $pusher)
+    {
+        $this->pusher = $pusher;
+    }
+
+## Resolving
+
+#### The `make` Method
+
+You may use the `make` method to resolve a class instance out of the container(regardless of what type of parameter the object needs). The `make` method accepts the name of the class or interface you wish to resolve:
+
+    $api = $app->make('HelpSpot\API');
+
+The `mark` method is the most important method I think of,You can simply use the "type prompt" way to add dependencies,the container will automatically parse all the parameters you need.
 
 ```php
 
-$instance = new SomeClass();
-$app->instance('instance', $instance);
+// Automatically parses the dependencies required by the UserController constructor
+$userController = $app->make(UserController::class);
 
-$app['instance'] === $instance; //true
-
-```
-
-### Create any abstract type
-
-```php
-
-$instance = $app->mark(YourClass::class);
-$instance = $app->mark(YourClass::class, array $params = []);
+class UserController
+{
+    public function __construct(UserRepository $users, HttpClient $client, $other = 'default')
+    {
+    }
+}
 
 ```
 
+## PSR-11
+
+Laravel's service container implements the PSR-11 interface. Therefore, you may type-hint the PSR-11 container interface to obtain an instance of the Laravel container:
+
+    use Psr\Container\ContainerInterface;
+
+    $service = $app->get('Service');
+
+# LISTEN
+
+MIT
+
+# Thanks
+
+[laravel-china](https://laravel.com)
