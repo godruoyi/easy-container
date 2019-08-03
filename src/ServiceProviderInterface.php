@@ -2,8 +2,6 @@
 
 namespace Godruoyi\Container;
 
-use Godruoyi\Container\ContainerInterface;
-
 /**
  * service provider interface.
  *
