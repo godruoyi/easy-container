@@ -11,7 +11,7 @@ interface ContainerInterface extends BaseContainerInterface
      * Determine if the given abstract type has been bound.
      *
      * @param  string  $abstract
-     * 
+     *
      * @return bool
      */
     public function bound($abstract);
@@ -21,7 +21,7 @@ interface ContainerInterface extends BaseContainerInterface
      *
      * @param  string  $abstract
      * @param  string  $alias
-     * 
+     *
      * @return void
      */
     public function alias($abstract, $alias);
@@ -32,7 +32,7 @@ interface ContainerInterface extends BaseContainerInterface
      * @param  string|array  $abstract
      * @param  \Closure|string|null  $concrete
      * @param  bool  $shared
-     * 
+     *
      * @return void
      */
     public function bind($abstract, $concrete = null, $shared = false);
@@ -43,7 +43,7 @@ interface ContainerInterface extends BaseContainerInterface
      * @param  string  $abstract
      * @param  \Closure|string|null  $concrete
      * @param  bool  $shared
-     * 
+     *
      * @return void
      */
     public function bindIf($abstract, $concrete = null, $shared = false);
@@ -53,7 +53,7 @@ interface ContainerInterface extends BaseContainerInterface
      *
      * @param  string|array  $abstract
      * @param  \Closure|string|null  $concrete
-     * 
+     *
      * @return void
      */
     public function singleton($abstract, $concrete = null);
@@ -74,7 +74,7 @@ interface ContainerInterface extends BaseContainerInterface
      *
      * @param  string  $abstract
      * @param  mixed   $instance
-     * 
+     *
      * @return void
      */
     public function instance($abstract, $instance);
@@ -84,7 +84,7 @@ interface ContainerInterface extends BaseContainerInterface
      *
      * @param  string  $abstract
      * @param  array   $parameters
-     * 
+     *
      * @return mixed
      */
     public function make($abstract, array $parameters = array());
@@ -95,7 +95,7 @@ interface ContainerInterface extends BaseContainerInterface
      * @param  callable|string  $callback
      * @param  array  $parameters
      * @param  string|null  $defaultMethod
-     * 
+     *
      * @return mixed
      */
     public function call($callback, array $parameters = array(), $defaultMethod = null);
@@ -104,7 +104,7 @@ interface ContainerInterface extends BaseContainerInterface
      * Determine if the given abstract type has been resolved.
      *
      * @param  string $abstract
-     * 
+     *
      * @return bool
      */
     public function resolved($abstract);
