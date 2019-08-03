@@ -17,9 +17,9 @@ class Hongloumeng implements BookInterface
     }
 
     /**
-     * Reset name
+     * Reset name.
      *
-     * @param  string $name
+     * @param string $name
      *
      * @return mixed
      */

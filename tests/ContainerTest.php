@@ -4,9 +4,9 @@ namespace Tests;
 
 use Godruoyi\Container\Container;
 use Godruoyi\Container\ContainerInterface;
+use PHPUnit\Framework\TestCase as BaseTestCase;
 use Tests\Support\BookInterface;
 use Tests\Support\Hongloumeng;
-use PHPUnit\Framework\TestCase as BaseTestCase;
 
 class ContainerTest extends BaseTestCase
 {
@@ -60,7 +60,7 @@ class ContainerTest extends BaseTestCase
     public function testSingleton()
     {
         $this->app->singleton(BookInterface::class, function () {
-            return new Hongloumeng;
+            return new Hongloumeng();
         });
 
         $this->assertEquals($this->app->get(BookInterface::class)->name(), 'hong lou meng');
@@ -69,7 +69,7 @@ class ContainerTest extends BaseTestCase
     public function testExtend()
     {
         $this->app->singleton(BookInterface::class, function () {
-            return new Hongloumeng;
+            return new Hongloumeng();
         });
 
         $this->assertEquals($this->app->get(BookInterface::class)->name(), 'hong lou meng');
@@ -92,14 +92,14 @@ class ContainerTest extends BaseTestCase
 
     public function testInstance()
     {
-        $this->app->instance(BookInterface::class, new Hongloumeng);
+        $this->app->instance(BookInterface::class, new Hongloumeng());
 
         $this->assertEquals($this->app->get(BookInterface::class)->name(), 'hong lou meng');
     }
 
     public function testMake()
     {
-        $this->app->instance(BookInterface::class, new Hongloumeng);
+        $this->app->instance(BookInterface::class, new Hongloumeng());
 
         $this->assertInstanceOf(Hongloumeng::class, $this->app->make(BookInterface::class));
         $this->assertEquals($this->app->make(BookInterface::class)->name(), 'hong lou meng');
@@ -107,7 +107,7 @@ class ContainerTest extends BaseTestCase
 
     public function testResolved()
     {
-        $this->app->instance(BookInterface::class, new Hongloumeng);
+        $this->app->instance(BookInterface::class, new Hongloumeng());
 
         $this->assertTrue($this->app->resolved(BookInterface::class));
     }

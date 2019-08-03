@@ -7,7 +7,7 @@ use Godruoyi\Container\Container;
 trait CreatedContainer
 {
     /**
-     * The app instance
+     * The app instance.
      *
      * @var \Godruoyi\Container\ContainerInterface
      */
@@ -15,6 +15,6 @@ trait CreatedContainer
 
     public function setUp()
     {
-        $this->app = new Container;
+        $this->app = new Container();
     }
 }

@@ -10,9 +10,9 @@ class ServiceProvideTest extends BaseTestCase
 {
     public function testBasic()
     {
-        $container = new \Godruoyi\Container\Container;
+        $container = new \Godruoyi\Container\Container();
 
-        (new BookServiceProvider)->register($container);
+        (new BookServiceProvider())->register($container);
 
         $this->assertEquals($container[BookInterface::class]->name(), 'hong lou meng');
     }
