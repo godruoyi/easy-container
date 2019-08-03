@@ -1,4 +1,4 @@
-<h1 align="center">A Simple `php 5.3` Dependency-Injecting Container</h1>
+<h1 align="center">A simple dependency injecting container from laravel.</h1>
 
 <p align="center">
     <a href="https://github.com/godruoyi/easy-container"><img src="https://github.styleci.io/repos/91430789/shield?branch=master" alt="styleci passed"></a>
