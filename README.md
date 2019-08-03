@@ -1,17 +1,16 @@
-<h1 align="center">A simple service container</h1>
-
-<p align="center">🗳 A Simple `php 5.3` Dependency-Injecting Container 🗳 </p>
+<h1 align="center">A Simple `php 5.3` Dependency-Injecting Container</h1>
 
 <p align="center">
+    <a href="https://github.com/godruoyi/easy-container"><img src="https://github.styleci.io/repos/91430789/shield?branch=master" alt="styleci passed"></a>
     <a href="https://packagist.org/packages/godruoyi/easy-container"><img src="https://poser.pugx.org/godruoyi/easy-container/v/stable.svg" alt="Latest Stable Version"></a>
     <a href="https://packagist.org/packages/godruoyi/easy-container"><img src="https://poser.pugx.org/godruoyi/easy-container/v/unstable.svg" alt="Latest Unstable Version"></a>
     <a href="https://packagist.org/packages/godruoyi/easy-container"><img src="https://poser.pugx.org/godruoyi/easy-container/downloads" alt="Total Downloads"></a>
     <a href="https://packagist.org/packages/godruoyi/easy-container"><img src="https://poser.pugx.org/godruoyi/easy-container/license" alt="License"></a>
 </p>
 
-[中文文档](https://github.com/godruoyi/easy-container/blob/master/README_zh-CN.md)
-
 # Why
+
+[中文文档](https://github.com/godruoyi/easy-container/blob/master/README_zh-CN.md)
 
 Currently more popular `php` container:
 

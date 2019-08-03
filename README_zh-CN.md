@@ -1,6 +1,12 @@
-# 简单的服务容器
+<h1 align="center">一个简单的 `php 5.3` 依赖注入容器</h1>
 
-一个简单的 `php 5.3` 依赖注入容器。
+<p align="center">
+    <a href="https://github.com/godruoyi/easy-container"><img src="https://github.styleci.io/repos/91430789/shield?branch=master" alt="styleci passed"></a>
+    <a href="https://packagist.org/packages/godruoyi/easy-container"><img src="https://poser.pugx.org/godruoyi/easy-container/v/stable.svg" alt="Latest Stable Version"></a>
+    <a href="https://packagist.org/packages/godruoyi/easy-container"><img src="https://poser.pugx.org/godruoyi/easy-container/v/unstable.svg" alt="Latest Unstable Version"></a>
+    <a href="https://packagist.org/packages/godruoyi/easy-container"><img src="https://poser.pugx.org/godruoyi/easy-container/downloads" alt="Total Downloads"></a>
+    <a href="https://packagist.org/packages/godruoyi/easy-container"><img src="https://poser.pugx.org/godruoyi/easy-container/license" alt="License"></a>
+</p>
 
 # Why
 
