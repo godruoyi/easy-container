@@ -13,59 +13,63 @@ use ReflectionParameter;
 class Container implements ContainerInterface, ArrayAccess
 {
     /**
-     * 容器实例对象
-     * 
+     * The Container instance
+     *
      * @var static
      */
     protected static $instance;
 
     /**
-     * 已经解决的对象集合
-     * 
+     * An array of objects that have been resolved in the container.
+     *
      * @var array
      */
     protected $resoleved = array();
 
     /**
-     * 绑定在容器上的对象集合
-     * 
+     * Bind array objects in the container.
+     *
      * @var array
      */
     protected $bindings = array();
 
     /**
-     * 绑定到容器的实列对象集合
-     * 
+     * An array for instance objects.
+     *
      * @var array
      */
     protected $instances = array();
 
     /**
-     * 注册一个 别名 => 对应的类 到容器中
-     * 
+     * Alias array
+     *
+     * forexample:
+     *
+     *  db => \Laravel\DB::class
+     *
      * @var array
      */
     protected $aliases = array();
 
     /**
-     * 扩展容器中已绑定或注册的对象， closures
-     * 
+     * An array for object extends array.
+     *
      * @var array
      */
     protected $extenders = array();
 
     /**
-     * 重新绑定对象到容器时的回调函数集合，
+     * Rebound callbank list.
      *
      * @var array
      */
     protected $reboundCallbacks = array();
 
     /**
-     * 判断给定的抽象类型是否已经绑定到容器上
+     * Has bound in this container for gieved abstract.
      *
      * @param  string  $abstract
-     * 
+     *
      * @return bool
      */
     public function bound($abstract)
@@ -76,11 +80,11 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * 设置别名到容器笔名数组中
+     * Set alias for abstract.
      *
      * @param  string  $abstract
      * @param  string  $alias
-     * 
+     *
      * @return void
      */
     public function alias($abstract, $alias)
@@ -92,25 +96,29 @@ class Container implements ContainerInterface, ArrayAccess
         $this->aliases[$alias] = $this->normalize($abstract);
     }
 
+    /**
+     *  {@inheritdoc}
+     */
     public function has($id)
     {
         return $this->offsetExists($id);
     }
 
+    /**
+     *  {@inheritdoc}
+     */
     public function get($id)
     {
         return $this[$id];
     }
 
     /**
-     * 绑定一个抽象类到容器中
+     * Bind a class to container.
      *
-     * @param  string|array  $abstract 抽象类
-     * @param  \Closure|string|null  $concrete 具体类
-     * @param  bool  $shared 绑定到容器的对象是否共享， 即后续取出的对象是否为同一对象 
-     *                       $app['someClass'] === $app['someClass'] //true
-     *                       shared为true时表示每次向容器取出同一对象
-     * 
+     * @param  string|array  $abstract
+     * @param  \Closure|string|null  $concrete
+     * @param  bool  $shared true set is single instance
+     *
      * @return void
      */
     public function bind($abstract, $concrete = null, $shared = false)
@@ -119,34 +127,24 @@ class Container implements ContainerInterface, ArrayAccess
 
         $concrete = $this->normalize($concrete);
 
-        //当给定的抽象类型是一个数组时([abstract => alias])， 则为该抽象类设置别名，
         if (is_array($abstract)) {
             list($abstract, $alias) = $this->extractAlias($abstract);
 
-            //注册抽象类 => 别名
             $this->alias($abstract, $alias);
         }
 
-        //绑定（abstract => concrete）到容器时， 先删除容器中已存在的该抽象绑定
         $this->dropStaleInstances($abstract);
 
-        //当给定的具体类型为空时 ($app->bind('some\Class'))，我们将简单的设置 抽象类型 = 具体类型， 
-        //后续构造该抽象类型时，设置构造后的实列对象为 共享 状态
         if (is_null($concrete)) {
             $concrete = $abstract;
         }
 
-        // 当给定的具体类型不是一个匿名函数时， 意味着该具体类型只是一个 类名，
-        // 把该具体类型注册到容器中时， 用匿名函数包裹起来， 当其需要实列化时， 
-        // 从容器上下文中获取更多的依赖来实列化他
         if (! $concrete instanceof Closure) {
             $concrete = $this->getClosure($abstract, $concrete);
         }
 
-        //绑定 （抽象类型/别名 => 闭包） 到容器上
         $this->bindings[$abstract] = compact('concrete', 'shared');
 
-        //若绑定到容器的对象先前已注册过， 则重新绑定
         if ($this->resolved($abstract)) {
             $this->rebound($abstract);
         }
@@ -158,7 +156,7 @@ class Container implements ContainerInterface, ArrayAccess
      * @param  string  $abstract
      * @param  \Closure|string|null  $concrete
      * @param  bool  $shared
-     * 
+     *
      * @return void
      */
     public function bindIf($abstract, $concrete = null, $shared = false)
@@ -173,7 +171,7 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @param  string|array  $abstract
      * @param  \Closure|string|null  $concrete
-     * 
+     *
      * @return void
      */
     public function singleton($abstract, $concrete = null)
@@ -186,7 +184,7 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @param  string    $abstract
      * @param  \Closure  $closure
-     * 
+     *
      * @return void
      *
      * @throws \InvalidArgumentException
@@ -210,7 +208,7 @@ class Container implements ContainerInterface, ArrayAccess
      * @param  callable|string  $callback
      * @param  array  $parameters
      * @param  string|null  $defaultMethod
-     * 
+     *
      * @return mixed
      */
     public function call($callback, array $parameters = array(), $defaultMethod = null)
@@ -228,7 +226,7 @@ class Container implements ContainerInterface, ArrayAccess
      * Determine if the given string is in Class@method syntax.
      *
      * @param  mixed  $callback
-     * 
+     *
      * @return bool
      */
     protected function isCallableWithAtSign($callback)
@@ -241,7 +239,7 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @param  callable|string  $callback
      * @param  array  $parameters
-     * 
+     *
      * @return array
      */
     protected function getMethodDependencies($callback, array $parameters = array())
@@ -259,7 +257,7 @@ class Container implements ContainerInterface, ArrayAccess
      * Get the proper reflection instance for the given callback.
      *
      * @param  callable|string  $callback
-     * 
+     *
      * @return \ReflectionFunctionAbstract
      */
     protected function getCallReflector($callback)
@@ -281,7 +279,7 @@ class Container implements ContainerInterface, ArrayAccess
      * @param  \ReflectionParameter  $parameter
      * @param  array  $parameters
      * @param  array  $dependencies
-     * 
+     *
      * @return mixed
      */
     protected function addDependencyForCallParameter(ReflectionParameter $parameter, array &$parameters, &$dependencies)
@@ -303,7 +301,7 @@ class Container implements ContainerInterface, ArrayAccess
      * @param  string  $target
      * @param  array  $parameters
      * @param  string|null  $defaultMethod
-     * 
+     *
      * @return mixed
      *
      * @throws \Exception
@@ -329,7 +327,7 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @param  string  $abstract
      * @param  mixed   $instance
-     * 
+     *
      * @return void
      */
     public function instance($abstract, $instance)
@@ -351,37 +349,32 @@ class Container implements ContainerInterface, ArrayAccess
         if ($bound) {
             $this->rebound($abstract);
         }
-
     }
 
     /**
-     * 实例化对象， 通过给定的抽象类型及参数
+     * Make a instance
      *
      * @param  string  $abstract
      * @param  array   $parameters
-     * 
+     *
      * @return mixed
      */
     public function make($abstract, array $parameters = array())
     {
         $abstract = $this->getAlias($this->normalize($abstract));
 
-        //反复make同一抽象时， 返回同一个对象
         if (isset($this->instances[$abstract]) && !is_null($this->instances[$abstract])) {
             return $this->instances[$abstract];
         }
 
-        //获取抽象类对应的具体对象
         $concrete = $this->getConcrete($abstract);
 
-        //当前具体类型是可以build时，
         if ($this->isBuildable($concrete, $abstract)) {
             $object = $this->build($concrete, $parameters);
         } else {
             $object = $this->make($concrete, $parameters);
         }
 
-        //若容器中有该具体类的扩展回调
         foreach ($this->getExtenders($abstract) as $extender) {
             $object = $extender($object, $this);
         }
@@ -396,56 +389,51 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * 构建一个具体类型实列， 
-     * 
-     * @param  mixed $concrete  
+     * Build a instance for gieved concrete
+     *
+     * @param  mixed $concrete
      * @param  array  $parameters
-     * 
+     *
      * @return mixed
      */
     public function build($concrete, array $parameters = array())
     {
-        // 当具体类型是一个Closure类型时， 直接返回函数的返回值
-        if ($concrete instanceof Closure) { 
+        if ($concrete instanceof Closure) {
             return $concrete($this, $parameters);
         }
 
         $reflector = new ReflectionClass($concrete);
 
-        //具体类型是不可实例化的 - 直接报错
         if (! $reflector->isInstantiable()) {
             throw new \Exception("Target [$concrete] is not instantiable");
         }
 
-        //获取类的构造函数 返回一个 ReflectionMethod 对象，反射了类的构造函数，
-        //或者当类不存在构造函数时返回 NULL。
         $constructor = $reflector->getConstructor();
 
-        // 不存在构造函数， 直接实例化
         if (is_null($constructor)) {
             return new $concrete;
         }
 
-        //构造函数参数 返回 ReflectionParameter对象构成的array 
         $dependencies = $constructor->getParameters();
 
-        // 构建构造函数参数通过传入的参数，
         $parameters = $this->keyParametersByArgument(
-            $dependencies, $parameters
+            $dependencies,
+            $parameters
         );
 
         $instances = $this->getDependencies(
-            $dependencies, $parameters
+            $dependencies,
+            $parameters
         );
 
         return $reflector->newInstanceArgs($instances);
     }
 
     /**
-     * 判断给定的抽象类型/别名 是否在容器中已是解决的
+     * Check abstract has resolved.
      *
      * @param  string $abstract
-     * 
+     *
      * @return bool
      */
     public function resolved($abstract)
@@ -460,10 +448,10 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * 规范化给定的类名 - 通过删除前面的反斜杠
+     * Normalized service name.
      *
      * @param  mixed  $service
-     * 
+     *
      * @return mixed
      */
     protected function normalize($service)
@@ -472,10 +460,10 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * 判断给定的抽象类是否在 容器-笔名数组中注册
+     * Check name has a alias in container.
      *
      * @param  string  $name
-     * 
+     *
      * @return bool
      */
     public function isAlias($name)
@@ -484,10 +472,10 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * 提取别名
-     * 
+     * Get alias.
+     *
      * @param  array  $alias
-     * 
+     *
      * @return array
      */
     protected function extractAlias(array $alias)
@@ -496,10 +484,10 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * 删除容器中陈旧的实列对象 - 根据给定的抽象类型, (只删除实列对象)
-     * 
+     * Delete instance in container.
+     *
      * @param  string $abstract
-     * 
+     *
      * @return void
      */
     protected function dropStaleInstances($abstract)
@@ -508,11 +496,9 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * 获取一个方法闭包， 根据指定的抽象类型及具体类型
-     * 
      * @param  string $abstract
      * @param  string $concrete
-     * 
+     *
      * @return \Closure
      */
     protected function getClosure($abstract, $concrete)
@@ -525,11 +511,11 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * 根据给定的抽象类获取别名
-     * 
+     * Get alias for gieved abstract.
+     *
      * @param  string $abstract
-     * 
-     * @return string          
+     *
+     * @return string
      */
     public function getAlias($abstract)
     {
@@ -541,30 +527,27 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * 重新绑定给定的抽象类到容器中， 
-     * 
+     * Rebing abstract to container.
+     *
      * @param string $abstract
-     * 
+     *
      * @return void
      */
     protected function rebound($abstract)
     {
-        //通过给定的抽象类型 - 实例化具体对象
         $instance = $this->make($abstract);
 
-        //当我们在重新绑定实列到容器中时， 可也为每个从新绑定定义回调函数，
-        //方便对象在重新绑定回容器时， 对其进行炒作
         foreach ($this->getReboundCallbacks($abstract) as $callback) {
             call_user_func($callback, $this, $instance);
         }
     }
 
     /**
-     * 通过给定的抽象类型获取扩展回调
-     * 
+     * Get gieved abstract ectedns.
+     *
      * @param  string $abstract
-     * 
-     * @return array     
+     *
+     * @return array
      */
     protected function getExtenders($abstract)
     {
@@ -576,17 +559,16 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * 判断给定的抽象类， 当其实列化对应的具体对象时， 该对象是否是共享的
-     * 
+     * Check absteact is shared in container.
+     *
      * @param  string  $abstract
-     * 
-     * @return boolean          
+     *
+     * @return boolean
      */
     protected function isShared($abstract)
     {
         $abstract = $this->normalize($abstract);
 
-        //存在实列集合中， 肯定是共享的
         if (isset($this->instances[$abstract])) {
             return true;
         }
@@ -599,16 +581,14 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * 根据抽象类型获取具体类型
-     * 
+     * Get abstract type in container.
+     *
      * @param  string $abstract
-     * 
+     *
      * @return mixed
      */
     public function getConcrete($abstract)
     {
-        // 当给定的抽象类型没有在容器中绑定时， 直接返回抽象类型
-        // 如当$app->make('SomeClass\Class')时， 直接返回具体类型为 SomeClass\Class
         if (! isset($this->bindings[$abstract])) {
             return $abstract;
         }
@@ -617,12 +597,12 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * 判断给定的抽象类型及具体类似是否是可构建的(build)
-     * 
+     * Check abstract and concrete has buildable.
+     *
      * @param  mixed $concrete
      * @param  string $abstract
-     * 
-     * @return boolean          
+     *
+     * @return boolean
      */
     public function isBuildable($concrete, $abstract)
     {
@@ -630,11 +610,11 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * 获取重新绑定时的回调数组
-     * 
-     * @param  string $abstract 
-     * 
-     * @return array           
+     * Get Rebound Callbacks
+     *
+     * @param  string $abstract
+     *
+     * @return array
      */
     public function getReboundCallbacks($abstract)
     {
@@ -646,13 +626,11 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * 构造参数 通过传入的参数
-     *
      * $app->build('Some\Class', [params..])
-     * 
-     * @param  array $dependencies 具体类型的构造函数参数数组
-     * @param  array $parameters   传入的参数数组
-     * 
+     *
+     * @param  array $dependencies
+     * @param  array $parameters
+     *
      * @return array
      */
     public function keyParametersByArgument(array $dependencies, array $parameters)
@@ -669,12 +647,12 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * 获取构造函数的参数，当传入的参数没有指定时
-     * 
-     * @param  array  $dependencies 构造函数依赖的参数
-     * @param  array  $parameters    传入的参数
-     * 
-     * @return 
+     * Get dependencies
+     *
+     * @param  array  $dependencies
+     * @param  array  $parameters
+     *
+     * @return array
      */
     protected function getDependencies(array $dependencies, array $parameters)
     {
@@ -696,11 +674,11 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * 解决没有类的构造函数
-     * 
+     * Resolve no class construct.
+     *
      * @param  ReflectionParameter $parameter
-     * 
-     * @return 
+     *
+     * @return
      */
     protected function resolveNonClass(ReflectionParameter $parameter)
     {
@@ -709,23 +687,22 @@ class Container implements ContainerInterface, ArrayAccess
         }
 
         $message = "Unresolvable dependency resolving [$parameter] in class {$parameter->getDeclaringClass()->getName()}";
+
         throw new \Exception($message);
     }
 
     /**
-     * 解决构造函数含有其他类参数的情况
-     * 
+     * Resolve Reflection Parameter
+     *
      * @param  ReflectionParameter $parameter
-     * 
-     * @return 
+     *
+     * @return
      */
     protected function resolveClass(ReflectionParameter $parameter)
     {
         try {
             return $this->make($parameter->getClass()->name);
-        }
-
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             if ($parameter->isOptional()) {
                 return $parameter->getDefaultValue();
             }
@@ -738,7 +715,7 @@ class Container implements ContainerInterface, ArrayAccess
      * Determine if a given offset exists.
      *
      * @param  string  $key
-     * 
+     *
      * @return bool
      */
     public function offsetExists($key)
@@ -750,7 +727,7 @@ class Container implements ContainerInterface, ArrayAccess
      * Get the value at a given offset.
      *
      * @param  string  $key
-     * 
+     *
      * @return mixed
      */
     public function offsetGet($key)
@@ -763,7 +740,7 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @param  string  $key
      * @param  mixed   $value
-     * 
+     *
      * @return void
      */
     public function offsetSet($key, $value)
@@ -784,7 +761,7 @@ class Container implements ContainerInterface, ArrayAccess
      * Unset the value at a given offset.
      *
      * @param  string  $key
-     * 
+     *
      * @return void
      */
     public function offsetUnset($key)
@@ -798,7 +775,7 @@ class Container implements ContainerInterface, ArrayAccess
      * Dynamically access container services.
      *
      * @param  string  $key
-     * 
+     *
      * @return mixed
      */
     public function __get($key)
@@ -811,7 +788,7 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @param  string  $key
      * @param  mixed   $value
-     * 
+     *
      * @return void
      */
     public function __set($key, $value)
