@@ -10,105 +10,116 @@ use Tests\Support\Hongloumeng;
 
 class ContainerTest extends BaseTestCase
 {
-    use Traits\CreatedContainer;
-
-    public function testBasic()
+    public function test_basic()
     {
-        $this->assertInstanceOf(ContainerInterface::class, $this->app);
-        $this->assertInstanceOf(Container::class, $this->app);
+        $app = new Container();
+
+        $this->assertInstanceOf(ContainerInterface::class, $app);
+        $this->assertInstanceOf(Container::class, $app);
     }
 
-    public function testHas()
+    public function test_has()
     {
-        $this->app['key'] = 1;
+        $app = new Container();
+        $app['key'] = 1;
 
-        $this->assertTrue($this->app->has('key'));
-        $this->assertFalse($this->app->has('not exists'));
+        $this->assertTrue($app->has('key'));
+        $this->assertFalse($app->has('not exists'));
     }
 
-    public function testBound()
+    public function test_bound()
     {
-        $this->app->bind('aaa', function () {
+        $app = new Container();
+        $app->bind('aaa', function () {
             return 'aaa';
         });
 
-        $this->assertTrue($this->app->bound('aaa'));
-        $this->assertFalse($this->app->bound('bbb'));
+        $this->assertTrue($app->bound('aaa'));
+        $this->assertFalse($app->bound('bbb'));
     }
 
-    public function testAlias()
+    public function test_alias()
     {
-        $this->app->alias(Support\Hongloumeng::class, 'aaa');
+        $app = new Container();
+        $app->alias(Support\Hongloumeng::class, 'aaa');
 
-        $this->assertEquals($this->app->getAlias('aaa'), Support\Hongloumeng::class);
+        $this->assertEquals($app->getAlias('aaa'), Support\Hongloumeng::class);
     }
 
-    public function testGet()
+    public function test_get()
     {
-        $this->app['aaa'] = 1;
+        $app = new Container();
+        $app['aaa'] = 1;
 
-        $this->assertTrue($this->app->get('aaa') == 1);
+        $this->assertTrue($app->get('aaa') == 1);
     }
 
-    public function testBind()
+    public function test_bind()
     {
-        $this->app->bind(BookInterface::class, Hongloumeng::class);
+        $app = new Container();
+        $app->bind(BookInterface::class, Hongloumeng::class);
 
-        $this->assertEquals($this->app[BookInterface::class]->name(), 'hong lou meng');
+        $this->assertEquals($app[BookInterface::class]->name(), 'hong lou meng');
     }
 
-    public function testSingleton()
+    public function test_singleton()
     {
-        $this->app->singleton(BookInterface::class, function () {
+        $app = new Container();
+        $app->singleton(BookInterface::class, function () {
             return new Hongloumeng();
         });
 
-        $this->assertEquals($this->app->get(BookInterface::class)->name(), 'hong lou meng');
+        $this->assertEquals($app->get(BookInterface::class)->name(), 'hong lou meng');
     }
 
-    public function testExtend()
+    public function test_extend()
     {
-        $this->app->singleton(BookInterface::class, function () {
+        $app = new Container();
+        $app->singleton(BookInterface::class, function () {
             return new Hongloumeng();
         });
 
-        $this->assertEquals($this->app->get(BookInterface::class)->name(), 'hong lou meng');
+        $this->assertEquals($app->get(BookInterface::class)->name(), 'hong lou meng');
 
-        $this->app->extend(BookInterface::class, function ($book) {
+        $app->extend(BookInterface::class, function ($book) {
             return $book->resetName('Jiu yang shen gong');
         });
 
-        $this->assertEquals($this->app->get(BookInterface::class)->name(), 'Jiu yang shen gong');
+        $this->assertEquals($app->get(BookInterface::class)->name(), 'Jiu yang shen gong');
     }
 
-    public function testCall()
+    public function test_call()
     {
-        $this->assertEquals($this->app->call(function () {
+        $app = new Container();
+        $this->assertEquals($app->call(function () {
             return 'hello';
         }), 'hello');
 
-        $this->assertEquals($this->app->call('\Tests\Support\Hongloumeng@name'), 'hong lou meng');
+        $this->assertEquals($app->call('\Tests\Support\Hongloumeng@name'), 'hong lou meng');
     }
 
-    public function testInstance()
+    public function test_instance()
     {
-        $this->app->instance(BookInterface::class, new Hongloumeng());
+        $app = new Container();
+        $app->instance(BookInterface::class, new Hongloumeng());
 
-        $this->assertEquals($this->app->get(BookInterface::class)->name(), 'hong lou meng');
+        $this->assertEquals($app->get(BookInterface::class)->name(), 'hong lou meng');
     }
 
-    public function testMake()
+    public function test_make()
     {
-        $this->app->instance(BookInterface::class, new Hongloumeng());
+        $app = new Container();
+        $app->instance(BookInterface::class, new Hongloumeng());
 
-        $this->assertInstanceOf(Hongloumeng::class, $this->app->make(BookInterface::class));
-        $this->assertEquals($this->app->make(BookInterface::class)->name(), 'hong lou meng');
+        $this->assertInstanceOf(Hongloumeng::class, $app->make(BookInterface::class));
+        $this->assertEquals($app->make(BookInterface::class)->name(), 'hong lou meng');
     }
 
-    public function testResolved()
+    public function test_resolved()
     {
-        $this->app->instance(BookInterface::class, new Hongloumeng());
+        $app = new Container();
+        $app->instance(BookInterface::class, new Hongloumeng());
 
-        $this->assertTrue($this->app->resolved(BookInterface::class));
+        $this->assertTrue($app->resolved(BookInterface::class));
     }
 }

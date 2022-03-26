@@ -5,7 +5,7 @@ namespace Godruoyi\Container;
 /**
  * service provider interface.
  *
- * @author  Godruoyi
+ * @author Godruoyi
  */
 interface ServiceProviderInterface
 {
