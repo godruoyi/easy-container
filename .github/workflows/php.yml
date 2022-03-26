@@ -17,13 +17,10 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
+        tools: composer
 
     - name: Install dependencies
-      uses: nick-invision/retry@v1
-      with:
-        timeout_minutes: 5
-        max_attempts: 5
-        command: composer install
+      run: composer install
 
     - name: PHPUnit Test
       run: vendor/bin/phpunit --verbose
