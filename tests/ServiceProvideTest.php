@@ -12,7 +12,8 @@ class ServiceProvideTest extends BaseTestCase
     {
         $container = new \Godruoyi\Container\Container();
 
-        (new BookServiceProvider())->register($container);
+        $a = new BookServiceProvider();
+        $a->register($container);
 
         $this->assertEquals($container['BookInterface']->name(), 'hong lou meng');
     }
