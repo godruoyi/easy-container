@@ -18,9 +18,13 @@ jobs:
       with:
         php-version: ${{ matrix.php-versions }}
         tools: composer
+      env:
+        COMPOSER_DISABLE_XDEBUG_WARN: 1
 
     - name: Install dependencies
       run: composer install
+      env:
+        COMPOSER_DISABLE_XDEBUG_WARN: 1
 
     - name: PHPUnit Test
       run: vendor/bin/phpunit --verbose

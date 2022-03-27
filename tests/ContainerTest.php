@@ -58,22 +58,6 @@ class ContainerTest extends BaseTestCase
         $this->assertEquals($app->getAlias('aaa'), 'Tests\Support\Hongloumeng');
     }
 
-    public function test_can_not_set_same_alias()
-    {
-        $app = new Container();
-
-        $msg = '';
-
-        try {
-            $app->alias('aaa', 'aaa');
-        } catch (\Throwable $th) {
-            $this->assertInstanceOf('Exception', $th);
-            $msg = $th->getMessage();
-        }
-
-        $this->assertEquals('[aaa] is aliased to itself.', $msg);
-    }
-
     public function test_has()
     {
         $app = new Container();
@@ -100,11 +84,6 @@ class ContainerTest extends BaseTestCase
         $this->assertTrue($app->get('aaa') == 1);
 
         // If get an not exists key, will throw an exception.
-        try {
-            $app->get('bbb');
-        } catch (\Throwable $th) {
-            $this->assertInstanceOf('ReflectionException', $th);
-        }
     }
 
     public function test_bind()
