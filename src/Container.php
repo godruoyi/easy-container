@@ -23,21 +23,21 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @var array
      */
-    protected $resoleved = [];
+    protected $resoleved = array();
 
     /**
      * Bind array objects in the container.
      *
      * @var array
      */
-    protected $bindings = [];
+    protected $bindings = array();
 
     /**
      * An array for instance objects.
      *
      * @var array
      */
-    protected $instances = [];
+    protected $instances = array();
 
     /**
      * Alias array.
@@ -48,21 +48,21 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @var array
      */
-    protected $aliases = [];
+    protected $aliases = array();
 
     /**
      * An array for object extends array.
      *
      * @var array
      */
-    protected $extenders = [];
+    protected $extenders = array();
 
     /**
      * Rebound callbank list.
      *
      * @var array
      */
-    protected $reboundCallbacks = [];
+    protected $reboundCallbacks = array();
 
     /**
      * Has bound in this container for gieved abstract.
@@ -368,7 +368,7 @@ class Container implements ContainerInterface, ArrayAccess
      */
     protected function getMethodDependencies($callback, array $parameters = [])
     {
-        $dependencies = [];
+        $dependencies = array();
 
         foreach ($this->getCallReflector($callback)->getParameters() as $parameter) {
             $this->addDependencyForCallParameter($parameter, $parameters, $dependencies);
@@ -570,7 +570,7 @@ class Container implements ContainerInterface, ArrayAccess
             return $this->extenders[$abstract];
         }
 
-        return [];
+        return array();
     }
 
     /**
@@ -637,7 +637,7 @@ class Container implements ContainerInterface, ArrayAccess
             return $this->reboundCallbacks[$abstract];
         }
 
-        return [];
+        return array();
     }
 
     /**
@@ -671,7 +671,7 @@ class Container implements ContainerInterface, ArrayAccess
      */
     protected function getDependencies(array $dependencies, array $parameters)
     {
-        $dependenciesArr = [];
+        $dependenciesArr = array();
 
         foreach ($dependencies as $parameter) {
             $dependency = $this->getParameterClass($parameter);
