@@ -115,9 +115,9 @@ class ContainerTest extends BaseTestCase
     public function test_bind_with_alias()
     {
         $app = new Container();
-        $app->bind([
+        $app->bind(array(
             'Interface' => 'Alias',
-        ], 'Tests\Support\Hongloumeng', true);
+        ), 'Tests\Support\Hongloumeng', true);
 
         $a = $app['Interface'];
         $b = $app['Alias'];
@@ -231,7 +231,7 @@ class ContainerTest extends BaseTestCase
         $app = new Container();
         $this->assertEquals($app->call(function ($a, $b = 1) {
             return $a + $b;
-        }, ['a' => 1]), 2);
+        }, array('a' => 1)), 2);
     }
 
     public function test_call_need_parameters3()
@@ -240,7 +240,7 @@ class ContainerTest extends BaseTestCase
 
         $this->assertEquals($app->call(function ($a, $b = 1) {
             return $a + $b;
-        }, ['a' => 1, 'b' => 2]), 3);
+        }, array('a' => 1, 'b' => 2)), 3);
     }
 
     public function test_instance()
