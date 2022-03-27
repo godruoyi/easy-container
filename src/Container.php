@@ -459,7 +459,7 @@ class Container implements ContainerInterface, ArrayAccess
             throw new \Exception('Method not provided.');
         }
 
-        return $this->call([$this->make($segments[0]), $method], $parameters);
+        return $this->call(array($this->make($segments[0]), $method), $parameters);
     }
 
     /**
@@ -495,7 +495,7 @@ class Container implements ContainerInterface, ArrayAccess
      */
     protected function extractAlias(array $alias)
     {
-        return [key($alias), current($alias)];
+        return array(key($alias), current($alias));
     }
 
     /**
