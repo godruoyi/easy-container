@@ -62,10 +62,16 @@ class ContainerTest extends BaseTestCase
     {
         $app = new Container();
 
-        $this->expectException('Exception');
-        $this->expectExceptionMessage('[aaa] is aliased to itself.');
+        $msg = '';
 
-        $app->alias('aaa', 'aaa');
+        try {
+            $app->alias('aaa', 'aaa');
+        } catch (\Throwable $th) {
+            $this->assertInstanceOf('Exception', $th);
+            $msg = $th->getMessage();
+        }
+
+        $this->assertEquals('[aaa] is aliased to itself.', $msg);
     }
 
     public function test_has()
@@ -94,8 +100,11 @@ class ContainerTest extends BaseTestCase
         $this->assertTrue($app->get('aaa') == 1);
 
         // If get an not exists key, will throw an exception.
-        $this->expectException('ReflectionException');
-        $app->get('bbb');
+        try {
+            $app->get('bbb');
+        } catch (\Throwable $th) {
+            $this->assertInstanceOf('ReflectionException', $th);
+        }
     }
 
     public function test_bind()
