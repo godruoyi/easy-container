@@ -16,7 +16,7 @@ class ContainerTest extends BaseTestCase
     {
         $app = new Container();
 
-        $this->assertInstanceOf(Container::class, $app);
+        $this->assertInstanceOf('Godruoyi\Container\Container', $app);
     }
 
     public function test_bound_in_binds()
@@ -53,16 +53,16 @@ class ContainerTest extends BaseTestCase
     public function test_alias()
     {
         $app = new Container();
-        $app->alias(Support\Hongloumeng::class, 'aaa');
+        $app->alias('Tests\Support\Hongloumeng', 'aaa');
 
-        $this->assertEquals($app->getAlias('aaa'), Support\Hongloumeng::class);
+        $this->assertEquals($app->getAlias('aaa'), 'Tests\Support\Hongloumeng');
     }
 
     public function test_can_not_set_same_alias()
     {
         $app = new Container();
 
-        $this->expectException(\Exception::class);
+        $this->expectException('Exception');
         $this->expectExceptionMessage('[aaa] is aliased to itself.');
 
         $app->alias('aaa', 'aaa');
@@ -94,14 +94,14 @@ class ContainerTest extends BaseTestCase
         $this->assertTrue($app->get('aaa') == 1);
 
         // If get an not exists key, will throw an exception.
-        $this->expectException(\ReflectionException::class);
+        $this->expectException('ReflectionException');
         $app->get('bbb');
     }
 
     public function test_bind()
     {
         $app = new Container();
-        $app->bind('BookInterface', Hongloumeng::class);
+        $app->bind('BookInterface', 'Tests\Support\Hongloumeng');
 
         $a = $app['BookInterface'];
         $b = $app['BookInterface'];
@@ -114,7 +114,7 @@ class ContainerTest extends BaseTestCase
     public function test_bind_share()
     {
         $app = new Container();
-        $app->bind('BookInterface', Hongloumeng::class, true);
+        $app->bind('BookInterface', 'Tests\Support\Hongloumeng', true);
 
         $a = $app['BookInterface'];
         $b = $app['BookInterface'];
@@ -129,7 +129,7 @@ class ContainerTest extends BaseTestCase
         $app = new Container();
         $app->bind([
             'Interface' => 'Alias',
-        ], Hongloumeng::class, true);
+        ], 'Tests\Support\Hongloumeng', true);
 
         $a = $app['Interface'];
         $b = $app['Alias'];
@@ -146,7 +146,6 @@ class ContainerTest extends BaseTestCase
 
         $this->assertTrue(!$app->isAlias('a'));
         $this->assertTrue($app->bound('a'));
-        $this->assertInstanceOf(Closure::class, $app->getConcrete('a'));
         $this->assertTrue($app->getConcrete('not_exists') === 'not_exists');
     }
 
@@ -159,7 +158,6 @@ class ContainerTest extends BaseTestCase
 
         $this->assertTrue(!$app->isAlias('a'));
         $this->assertTrue($app->bound('a'));
-        $this->assertInstanceOf(Closure::class, $app->getConcrete('a'));
         $this->assertEquals(1, $app['a']);
     }
 
@@ -176,7 +174,6 @@ class ContainerTest extends BaseTestCase
 
         $this->assertTrue(!$app->isAlias('a'));
         $this->assertTrue($app->bound('a'));
-        $this->assertInstanceOf(Closure::class, $app->getConcrete('a'));
         $this->assertEquals(2, $app['a']);
     }
 
@@ -194,7 +191,6 @@ class ContainerTest extends BaseTestCase
 
         $this->assertTrue(!$app->isAlias('a'));
         $this->assertTrue($app->bound('a'));
-        $this->assertInstanceOf(Closure::class, $app->getConcrete('a'));
         $this->assertEquals(1, $app['a']);
     }
 
@@ -272,7 +268,7 @@ class ContainerTest extends BaseTestCase
         $app = new Container();
         $app->instance('BookInterface', new Hongloumeng());
 
-        $this->assertInstanceOf(Hongloumeng::class, $app->make('BookInterface'));
+        $this->assertInstanceOf('Tests\Support\Hongloumeng', $app->make('BookInterface'));
         $this->assertEquals($app->make('BookInterface')->name(), 'hong lou meng');
     }
 
@@ -281,12 +277,12 @@ class ContainerTest extends BaseTestCase
         $app = new Container();
 
         $app->instance('Tests\Support\BookInterface', new Hongloumeng());
-        $app->bind('a', ThreeBody::class);
+        $app->bind('a', 'Tests\Support\ThreeBody');
 
         $a = $app->make('a');
 
-        $this->assertInstanceOf(ThreeBody::class, $a);
-        $this->assertInstanceOf(Hongloumeng::class, $a->book);
+        $this->assertInstanceOf('Tests\Support\ThreeBody', $a);
+        $this->assertInstanceOf('Tests\Support\Hongloumeng', $a->book);
         $this->assertEquals($a->getName(), 'hong lou meng');
     }
 
@@ -297,7 +293,7 @@ class ContainerTest extends BaseTestCase
 
         $ps = $x->getParameters();
 
-        $this->assertIsArray($ps);
+        $this->assertTrue(is_array($ps));
         $this->assertCount(2, $ps);
     }
 
