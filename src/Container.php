@@ -222,106 +222,6 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * Determine if the given string is in Class@method syntax.
-     *
-     * @param mixed $callback
-     *
-     * @return bool
-     */
-    protected function isCallableWithAtSign($callback)
-    {
-        return is_string($callback) && strpos($callback, '@') !== false;
-    }
-
-    /**
-     * Get all dependencies for a given method.
-     *
-     * @param callable|string $callback
-     * @param array           $parameters
-     *
-     * @return array
-     */
-    protected function getMethodDependencies($callback, array $parameters = [])
-    {
-        $dependencies = [];
-
-        foreach ($this->getCallReflector($callback)->getParameters() as $parameter) {
-            $this->addDependencyForCallParameter($parameter, $parameters, $dependencies);
-        }
-
-        return array_merge($dependencies, $parameters);
-    }
-
-    /**
-     * Get the proper reflection instance for the given callback.
-     *
-     * @param callable|string $callback
-     *
-     * @return \ReflectionFunctionAbstract
-     */
-    protected function getCallReflector($callback)
-    {
-        if (is_string($callback) && strpos($callback, '::') !== false) {
-            $callback = explode('::', $callback);
-        }
-
-        if (is_array($callback)) {
-            return new ReflectionMethod($callback[0], $callback[1]);
-        }
-
-        return new ReflectionFunction($callback);
-    }
-
-    /**
-     * Get the dependency for the given call parameter.
-     *
-     * @param \ReflectionParameter $parameter
-     * @param array                $parameters
-     * @param array                $dependencies
-     *
-     * @return mixed
-     */
-    protected function addDependencyForCallParameter(ReflectionParameter $parameter, array &$parameters, &$dependencies)
-    {
-        if (array_key_exists($parameter->name, $parameters)) {
-            $dependencies[] = $parameters[$parameter->name];
-
-            unset($parameters[$parameter->name]);
-        } elseif ($parameter->getClass()) {
-            $dependencies[] = $this->make($parameter->getClass()->name);
-        } elseif ($parameter->isDefaultValueAvailable()) {
-            $dependencies[] = $parameter->getDefaultValue();
-        }
-    }
-
-    /**
-     * Call a string reference to a class using Class@method syntax.
-     *
-     * @param string      $target
-     * @param array       $parameters
-     * @param string|null $defaultMethod
-     *
-     * @throws \Exception
-     *
-     * @return mixed
-     */
-    protected function callClass($target, array $parameters = [], $defaultMethod = null)
-    {
-        $segments = explode('@', $target);
-
-        // If the listener has an @ sign, we will assume it is being used to delimit
-        // the class name from the handle method name. This allows for handlers
-        // to run multiple handler methods in a single class for convenience.
-        $method = count($segments) == 2 ? $segments[1] : $defaultMethod;
-
-        if (is_null($method)) {
-            throw new \Exception('Method not provided.');
-        }
-
-        return $this->call([$this->make($segments[0]), $method], $parameters);
-    }
-
-    /**
      * Register an existing instance as shared in the container.
      *
      * @param string $abstract
@@ -444,6 +344,122 @@ class Container implements ContainerInterface, ArrayAccess
         }
 
         return isset($this->resoleved[$abstract]) || isset($this->instances[$abstract]);
+    }
+
+    /**
+     * Determine if the given string is in Class@method syntax.
+     *
+     * @param mixed $callback
+     *
+     * @return bool
+     */
+    protected function isCallableWithAtSign($callback)
+    {
+        return is_string($callback) && strpos($callback, '@') !== false;
+    }
+
+    /**
+     * Get all dependencies for a given method.
+     *
+     * @param callable|string $callback
+     * @param array           $parameters
+     *
+     * @return array
+     */
+    protected function getMethodDependencies($callback, array $parameters = [])
+    {
+        $dependencies = [];
+
+        foreach ($this->getCallReflector($callback)->getParameters() as $parameter) {
+            $this->addDependencyForCallParameter($parameter, $parameters, $dependencies);
+        }
+
+        return array_merge($dependencies, $parameters);
+    }
+
+    /**
+     * Get the proper reflection instance for the given callback.
+     *
+     * @param callable|string $callback
+     *
+     * @return \ReflectionFunctionAbstract
+     */
+    protected function getCallReflector($callback)
+    {
+        if (is_string($callback) && strpos($callback, '::') !== false) {
+            $callback = explode('::', $callback);
+        }
+
+        if (is_array($callback)) {
+            return new ReflectionMethod($callback[0], $callback[1]);
+        }
+
+        return new ReflectionFunction($callback);
+    }
+
+    /**
+     * Get the dependency for the given call parameter.
+     *
+     * @param \ReflectionParameter $parameter
+     * @param array                $parameters
+     * @param array                $dependencies
+     *
+     * @return mixed
+     */
+    protected function addDependencyForCallParameter(ReflectionParameter $parameter, array &$parameters, &$dependencies)
+    {
+        if (array_key_exists($parameter->name, $parameters)) {
+            $dependencies[] = $parameters[$parameter->name];
+
+            unset($parameters[$parameter->name]);
+        } elseif ($this->getParameterClass($parameter)) {
+            $dependencies[] = $this->make($this->getParameterClass($parameter)->getName());
+        } elseif ($parameter->isDefaultValueAvailable()) {
+            $dependencies[] = $parameter->getDefaultValue();
+        }
+    }
+
+    /**
+     * Compatible with PHP 5.3.
+     *
+     * @param \ReflectionParameter $p
+     *
+     * @return mixed
+     */
+    protected function getParameterClass(ReflectionParameter $p)
+    {
+        if (version_compare(PHP_VERSION, '7.0.0') >= 0) {
+            return $p->getType();
+        }
+
+        return $p->getClass();
+    }
+
+    /**
+     * Call a string reference to a class using Class@method syntax.
+     *
+     * @param string      $target
+     * @param array       $parameters
+     * @param string|null $defaultMethod
+     *
+     * @throws \Exception
+     *
+     * @return mixed
+     */
+    protected function callClass($target, array $parameters = [], $defaultMethod = null)
+    {
+        $segments = explode('@', $target);
+
+        // If the listener has an @ sign, we will assume it is being used to delimit
+        // the class name from the handle method name. This allows for handlers
+        // to run multiple handler methods in a single class for convenience.
+        $method = count($segments) == 2 ? $segments[1] : $defaultMethod;
+
+        if (is_null($method)) {
+            throw new \Exception('Method not provided.');
+        }
+
+        return $this->call([$this->make($segments[0]), $method], $parameters);
     }
 
     /**
@@ -658,7 +674,7 @@ class Container implements ContainerInterface, ArrayAccess
         $dependenciesArr = [];
 
         foreach ($dependencies as $parameter) {
-            $dependency = $parameter->getClass();
+            $dependency = $this->getParameterClass($parameter);
 
             if (array_key_exists($parameter->name, $parameters)) {
                 $dependenciesArr[] = $parameters[$parameter->name];
@@ -700,7 +716,7 @@ class Container implements ContainerInterface, ArrayAccess
     protected function resolveClass(ReflectionParameter $parameter)
     {
         try {
-            return $this->make($parameter->getClass()->name);
+            return $this->make($this->getParameterClass($parameter)->getName());
         } catch (\Exception $e) {
             if ($parameter->isOptional()) {
                 return $parameter->getDefaultValue();
