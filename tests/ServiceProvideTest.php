@@ -8,12 +8,12 @@ use Tests\Support\BookServiceProvider;
 
 class ServiceProvideTest extends BaseTestCase
 {
-    public function testBasic()
+    public function test_basic()
     {
         $container = new \Godruoyi\Container\Container();
 
         (new BookServiceProvider())->register($container);
 
-        $this->assertEquals($container[BookInterface::class]->name(), 'hong lou meng');
+        $this->assertEquals($container['BookInterface']->name(), 'hong lou meng');
     }
 }

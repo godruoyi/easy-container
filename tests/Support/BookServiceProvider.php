@@ -17,7 +17,7 @@ class BookServiceProvider implements ServiceProviderInterface
      */
     public function register(ContainerInterface $container)
     {
-        $container->bind(BookInterface::class, function ($app) {
+        $container->bind('BookInterface', function ($app) {
             return $app->make(Hongloumeng::class);
         });
     }

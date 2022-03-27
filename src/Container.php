@@ -428,7 +428,7 @@ class Container implements ContainerInterface, ArrayAccess
      */
     protected function getParameterClass(ReflectionParameter $p)
     {
-        if (version_compare(PHP_VERSION, '7.0.0') >= 0) {
+        if (version_compare(PHP_VERSION, '8.0.0') >= 0) {
             return $p->getType();
         }
 
