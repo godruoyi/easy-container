@@ -210,7 +210,7 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @return mixed
      */
-    public function call($callback, array $parameters = [], $defaultMethod = null)
+    public function call($callback, array $parameters = array(), $defaultMethod = null)
     {
         if ($this->isCallableWithAtSign($callback) || $defaultMethod) {
             return $this->callClass($callback, $parameters, $defaultMethod);
@@ -258,7 +258,7 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @return mixed
      */
-    public function make($abstract, array $parameters = [])
+    public function make($abstract, array $parameters = array())
     {
         $abstract = $this->getAlias($this->normalize($abstract));
 
@@ -295,7 +295,7 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @return mixed
      */
-    public function build($concrete, array $parameters = [])
+    public function build($concrete, array $parameters = array())
     {
         if ($concrete instanceof Closure) {
             return $concrete($this, $parameters);
@@ -366,7 +366,7 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @return array
      */
-    protected function getMethodDependencies($callback, array $parameters = [])
+    protected function getMethodDependencies($callback, array $parameters = array())
     {
         $dependencies = array();
 
@@ -446,7 +446,7 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @return mixed
      */
-    protected function callClass($target, array $parameters = [], $defaultMethod = null)
+    protected function callClass($target, array $parameters = array(), $defaultMethod = null)
     {
         $segments = explode('@', $target);
 
@@ -518,7 +518,7 @@ class Container implements ContainerInterface, ArrayAccess
      */
     protected function getClosure($abstract, $concrete)
     {
-        return function ($container, array $parameters = []) use ($abstract, $concrete) {
+        return function ($container, array $parameters = array()) use ($abstract, $concrete) {
             $method = ($abstract == $concrete) ? 'build' : 'make';
 
             return $container->$method($concrete, $parameters);
