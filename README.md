@@ -43,6 +43,8 @@ Based on this, [easy-container](https://github.com/godruoyi/easy-container) was 
 
 # Install
 
+🐝 Now, we support most PHP versions, which you can view [here](https://github.com/godruoyi/easy-container/actions/workflows/php.yml).
+
 ```shell
 composer require godruoyi/easy-container
 ```
