@@ -1,11 +1,23 @@
 <?php
 
+/*
+ * This file is part of the godruoyi/easy-container.
+ *
+ * (c) Godruoyi <g@godruoyi.com>
+ *
+ * This source file is subject to the MIT license that is bundled.
+ */
+
 namespace Godruoyi\Container;
 
 use ArrayAccess;
 use Closure;
+use Exception;
+use InvalidArgumentException;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionFunction;
+use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use ReflectionParameter;
 
@@ -23,55 +35,54 @@ class Container implements ContainerInterface, ArrayAccess
      *
      * @var array
      */
-    protected $resoleved = array();
+    protected $resoleved = [];
 
     /**
      * Bind array objects in the container.
      *
      * @var array
      */
-    protected $bindings = array();
+    protected $bindings = [];
 
     /**
      * An array for instance objects.
      *
      * @var array
      */
-    protected $instances = array();
+    protected $instances = [];
 
     /**
      * Alias array.
      *
-     * forexample:
+     * for example:
      *
      *  db => \Laravel\DB::class
      *
      * @var array
      */
-    protected $aliases = array();
+    protected $aliases = [];
 
     /**
      * An array for object extends array.
      *
      * @var array
      */
-    protected $extenders = array();
+    protected $extenders = [];
 
     /**
-     * Rebound callbank list.
+     * Rebound callback list.
      *
      * @var array
      */
-    protected $reboundCallbacks = array();
+    protected $reboundCallbacks = [];
 
     /**
      * Has bound in this container for gieved abstract.
      *
-     * @param string $abstract
-     *
+     * @param  string  $abstract
      * @return bool
      */
-    public function bound($abstract)
+    public function bound(string $abstract): bool
     {
         $abstract = $this->normalize($abstract);
 
@@ -81,15 +92,16 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Set alias for abstract.
      *
-     * @param string $abstract
-     * @param string $alias
-     *
+     * @param  string  $abstract
+     * @param  string  $alias
      * @return void
+     *
+     * @throws Exception
      */
     public function alias($abstract, $alias)
     {
         if ($alias === $abstract) {
-            throw new \Exception("[{$abstract}] is aliased to itself.");
+            throw new Exception("[{$abstract}] is aliased to itself.");
         }
 
         $this->aliases[$alias] = $this->normalize($abstract);
@@ -98,7 +110,7 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      *  {@inheritdoc}
      */
-    public function has($id)
+    public function has(string $id): bool
     {
         return $this->offsetExists($id);
     }
@@ -106,7 +118,7 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      *  {@inheritdoc}
      */
-    public function get($id)
+    public function get(string $id)
     {
         return $this[$id];
     }
@@ -114,20 +126,21 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Bind a class to container.
      *
-     * @param string|array         $abstract
-     * @param \Closure|string|null $concrete
-     * @param bool                 $shared   true set is single instance
-     *
+     * @param  string|array  $abstract
+     * @param  Closure|string|null  $concrete
+     * @param  bool  $shared true set is single instance
      * @return void
+     *
+     * @throws Exception
      */
-    public function bind($abstract, $concrete = null, $shared = false)
+    public function bind($abstract, $concrete = null, bool $shared = false)
     {
         $abstract = $this->normalize($abstract);
 
         $concrete = $this->normalize($concrete);
 
         if (is_array($abstract)) {
-            list($abstract, $alias) = $this->extractAlias($abstract);
+            [$abstract, $alias] = $this->extractAlias($abstract);
 
             $this->alias($abstract, $alias);
         }
@@ -138,7 +151,7 @@ class Container implements ContainerInterface, ArrayAccess
             $concrete = $abstract;
         }
 
-        if (!$concrete instanceof Closure) {
+        if (! $concrete instanceof Closure) {
             $concrete = $this->getClosure($abstract, $concrete);
         }
 
@@ -152,15 +165,16 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Register a binding if it hasn't already been registered.
      *
-     * @param string               $abstract
-     * @param \Closure|string|null $concrete
-     * @param bool                 $shared
-     *
+     * @param  string  $abstract
+     * @param  Closure|string|null  $concrete
+     * @param  bool  $shared
      * @return void
+     *
+     * @throws Exception
      */
-    public function bindIf($abstract, $concrete = null, $shared = false)
+    public function bindIf(string $abstract, $concrete = null, bool $shared = false)
     {
-        if (!$this->bound($abstract)) {
+        if (! $this->bound($abstract)) {
             $this->bind($abstract, $concrete, $shared);
         }
     }
@@ -168,10 +182,11 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Register a shared binding in the container.
      *
-     * @param string|array         $abstract
-     * @param \Closure|string|null $concrete
-     *
+     * @param  string|array  $abstract
+     * @param  Closure|string|null  $concrete
      * @return void
+     *
+     * @throws Exception
      */
     public function singleton($abstract, $concrete = null)
     {
@@ -181,14 +196,14 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * "Extend" an abstract type in the container.
      *
-     * @param string   $abstract
-     * @param \Closure $closure
-     *
-     * @throws \InvalidArgumentException
-     *
+     * @param  string  $abstract
+     * @param  Closure  $closure
      * @return void
+     *
+     * @throws InvalidArgumentException
+     * @throws Exception
      */
-    public function extend($abstract, Closure $closure)
+    public function extend(string $abstract, Closure $closure)
     {
         $abstract = $this->normalize($abstract);
 
@@ -204,13 +219,14 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Call the given Closure / class@method and inject its dependencies.
      *
-     * @param callable|string $callback
-     * @param array           $parameters
-     * @param string|null     $defaultMethod
-     *
+     * @param  callable|string  $callback
+     * @param  array  $parameters
+     * @param  string|null  $defaultMethod
      * @return mixed
+     *
+     * @throws Exception
      */
-    public function call($callback, array $parameters = array(), $defaultMethod = null)
+    public function call($callback, array $parameters = [], string $defaultMethod = null)
     {
         if ($this->isCallableWithAtSign($callback) || $defaultMethod) {
             return $this->callClass($callback, $parameters, $defaultMethod);
@@ -224,17 +240,18 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Register an existing instance as shared in the container.
      *
-     * @param string $abstract
-     * @param mixed  $instance
-     *
+     * @param  string  $abstract
+     * @param  mixed  $instance
      * @return void
+     *
+     * @throws Exception
      */
-    public function instance($abstract, $instance)
+    public function instance(string $abstract, $instance)
     {
         $abstract = $this->normalize($abstract);
 
         if (is_array($abstract)) {
-            list($abstract, $alias) = $this->extractAlias($abstract);
+            [$abstract, $alias] = $this->extractAlias($abstract);
 
             $this->alias($abstract, $alias);
         }
@@ -253,16 +270,17 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Make a instance.
      *
-     * @param string $abstract
-     * @param array  $parameters
-     *
+     * @param  string  $abstract
+     * @param  array  $parameters
      * @return mixed
+     *
+     * @throws Exception
      */
-    public function make($abstract, array $parameters = array())
+    public function make(string $abstract, array $parameters = [])
     {
         $abstract = $this->getAlias($this->normalize($abstract));
 
-        if (isset($this->instances[$abstract]) && !is_null($this->instances[$abstract])) {
+        if (isset($this->instances[$abstract]) && ! is_null($this->instances[$abstract])) {
             return $this->instances[$abstract];
         }
 
@@ -288,14 +306,16 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * Build a instance for gieved concrete.
+     * Build a instance for given class.
      *
-     * @param mixed $concrete
-     * @param array $parameters
-     *
+     * @param  mixed  $concrete
+     * @param  array  $parameters
      * @return mixed
+     *
+     * @throws ReflectionException
+     * @throws Exception
      */
-    public function build($concrete, array $parameters = array())
+    public function build($concrete, array $parameters = [])
     {
         if ($concrete instanceof Closure) {
             return $concrete($this, $parameters);
@@ -303,8 +323,8 @@ class Container implements ContainerInterface, ArrayAccess
 
         $reflector = new ReflectionClass($concrete);
 
-        if (!$reflector->isInstantiable()) {
-            throw new \Exception("Target [$concrete] is not instantiable");
+        if (! $reflector->isInstantiable()) {
+            throw new Exception("Target [$concrete] is not instantiable");
         }
 
         $constructor = $reflector->getConstructor();
@@ -331,11 +351,10 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Check abstract has resolved.
      *
-     * @param string $abstract
-     *
+     * @param  string  $abstract
      * @return bool
      */
-    public function resolved($abstract)
+    public function resolved(string $abstract): bool
     {
         $abstract = $this->normalize($abstract);
 
@@ -349,11 +368,10 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Determine if the given string is in Class@method syntax.
      *
-     * @param mixed $callback
-     *
+     * @param  mixed  $callback
      * @return bool
      */
-    protected function isCallableWithAtSign($callback)
+    protected function isCallableWithAtSign($callback): bool
     {
         return is_string($callback) && strpos($callback, '@') !== false;
     }
@@ -361,14 +379,16 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Get all dependencies for a given method.
      *
-     * @param callable|string $callback
-     * @param array           $parameters
-     *
+     * @param  callable|string  $callback
+     * @param  array  $parameters
      * @return array
+     *
+     * @throws ReflectionException
+     * @throws Exception
      */
-    protected function getMethodDependencies($callback, array $parameters = array())
+    protected function getMethodDependencies($callback, array $parameters = []): array
     {
-        $dependencies = array();
+        $dependencies = [];
 
         foreach ($this->getCallReflector($callback)->getParameters() as $parameter) {
             $this->addDependencyForCallParameter($parameter, $parameters, $dependencies);
@@ -380,9 +400,10 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Get the proper reflection instance for the given callback.
      *
-     * @param callable|string $callback
+     * @param  callable|string  $callback
+     * @return ReflectionFunctionAbstract
      *
-     * @return \ReflectionFunctionAbstract
+     * @throws ReflectionException
      */
     protected function getCallReflector($callback)
     {
@@ -400,13 +421,14 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Get the dependency for the given call parameter.
      *
-     * @param \ReflectionParameter $parameter
-     * @param array                $parameters
-     * @param array                $dependencies
+     * @param  ReflectionParameter  $parameter
+     * @param  array  $parameters
+     * @param  array  $dependencies
+     * @return void
      *
-     * @return mixed
+     * @throws Exception
      */
-    protected function addDependencyForCallParameter(ReflectionParameter $parameter, array &$parameters, &$dependencies)
+    protected function addDependencyForCallParameter(ReflectionParameter $parameter, array &$parameters, array &$dependencies)
     {
         if (array_key_exists($parameter->name, $parameters)) {
             $dependencies[] = $parameters[$parameter->name];
@@ -422,9 +444,8 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Compatible with PHP 5.3.
      *
-     * @param \ReflectionParameter $p
-     *
-     * @return mixed
+     * @param  ReflectionParameter  $p
+     * @return \ReflectionClass|\ReflectionNamedType|null
      */
     protected function getParameterClass(ReflectionParameter $p)
     {
@@ -438,15 +459,14 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Call a string reference to a class using Class@method syntax.
      *
-     * @param string      $target
-     * @param array       $parameters
-     * @param string|null $defaultMethod
-     *
-     * @throws \Exception
-     *
+     * @param  string  $target
+     * @param  array  $parameters
+     * @param  string|null  $defaultMethod
      * @return mixed
+     *
+     * @throws Exception
      */
-    protected function callClass($target, array $parameters = array(), $defaultMethod = null)
+    protected function callClass(string $target, array $parameters = [], string $defaultMethod = null)
     {
         $segments = explode('@', $target);
 
@@ -456,17 +476,16 @@ class Container implements ContainerInterface, ArrayAccess
         $method = count($segments) == 2 ? $segments[1] : $defaultMethod;
 
         if (is_null($method)) {
-            throw new \Exception('Method not provided.');
+            throw new Exception('Method not provided.');
         }
 
-        return $this->call(array($this->make($segments[0]), $method), $parameters);
+        return $this->call([$this->make($segments[0]), $method], $parameters);
     }
 
     /**
      * Normalized service name.
      *
-     * @param mixed $service
-     *
+     * @param  mixed  $service
      * @return mixed
      */
     protected function normalize($service)
@@ -477,11 +496,10 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Check name has a alias in container.
      *
-     * @param string $name
-     *
+     * @param  string  $name
      * @return bool
      */
-    public function isAlias($name)
+    public function isAlias(string $name): bool
     {
         return isset($this->aliases[$this->normalize($name)]);
     }
@@ -489,36 +507,33 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Get alias.
      *
-     * @param array $alias
-     *
+     * @param  array  $alias
      * @return array
      */
-    protected function extractAlias(array $alias)
+    protected function extractAlias(array $alias): array
     {
-        return array(key($alias), current($alias));
+        return [key($alias), current($alias)];
     }
 
     /**
      * Delete instance in container.
      *
-     * @param string $abstract
-     *
+     * @param  string  $abstract
      * @return void
      */
-    protected function dropStaleInstances($abstract)
+    protected function dropStaleInstances(string $abstract)
     {
         unset($this->instances[$abstract], $this->aliases[$abstract]);
     }
 
     /**
-     * @param string $abstract
-     * @param string $concrete
-     *
-     * @return \Closure
+     * @param  string  $abstract
+     * @param  string  $concrete
+     * @return Closure
      */
-    protected function getClosure($abstract, $concrete)
+    protected function getClosure(string $abstract, string $concrete): Closure
     {
-        return function ($container, array $parameters = array()) use ($abstract, $concrete) {
+        return function ($container, array $parameters = []) use ($abstract, $concrete) {
             $method = ($abstract == $concrete) ? 'build' : 'make';
 
             return $container->$method($concrete, $parameters);
@@ -526,15 +541,14 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * Get alias for gieved abstract.
+     * Get alias for given abstract if available.
      *
-     * @param string $abstract
-     *
+     * @param  string  $abstract
      * @return string
      */
-    public function getAlias($abstract)
+    public function getAlias(string $abstract): string
     {
-        if (!isset($this->aliases[$abstract])) {
+        if (! isset($this->aliases[$abstract])) {
             return $abstract;
         }
 
@@ -542,13 +556,14 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * Rebing abstract to container.
+     * Rebind abstract to container.
      *
-     * @param string $abstract
-     *
+     * @param  string  $abstract
      * @return void
+     *
+     * @throws Exception
      */
-    protected function rebound($abstract)
+    protected function rebound(string $abstract)
     {
         $instance = $this->make($abstract);
 
@@ -558,29 +573,27 @@ class Container implements ContainerInterface, ArrayAccess
     }
 
     /**
-     * Get gieved abstract ectedns.
+     * Get abstract extender.
      *
-     * @param string $abstract
-     *
+     * @param  string  $abstract
      * @return array
      */
-    protected function getExtenders($abstract)
+    protected function getExtenders(string $abstract): array
     {
         if (isset($this->extenders[$abstract])) {
             return $this->extenders[$abstract];
         }
 
-        return array();
+        return [];
     }
 
     /**
-     * Check absteact is shared in container.
+     * Check abstract is shared in container.
      *
-     * @param string $abstract
-     *
+     * @param  string  $abstract
      * @return bool
      */
-    protected function isShared($abstract)
+    protected function isShared(string $abstract): bool
     {
         $abstract = $this->normalize($abstract);
 
@@ -588,7 +601,7 @@ class Container implements ContainerInterface, ArrayAccess
             return true;
         }
 
-        if (!isset($this->bindings[$abstract]['shared'])) {
+        if (! isset($this->bindings[$abstract]['shared'])) {
             return false;
         }
 
@@ -598,13 +611,12 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Get abstract type in container.
      *
-     * @param string $abstract
-     *
+     * @param  string  $abstract
      * @return mixed
      */
-    public function getConcrete($abstract)
+    public function getConcrete(string $abstract)
     {
-        if (!isset($this->bindings[$abstract])) {
+        if (! isset($this->bindings[$abstract])) {
             return $abstract;
         }
 
@@ -614,12 +626,11 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Check abstract and concrete has buildable.
      *
-     * @param mixed  $concrete
-     * @param string $abstract
-     *
+     * @param  mixed  $concrete
+     * @param  string  $abstract
      * @return bool
      */
-    public function isBuildable($concrete, $abstract)
+    public function isBuildable($concrete, string $abstract): bool
     {
         return $concrete === $abstract || $concrete instanceof Closure;
     }
@@ -627,28 +638,26 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Get Rebound Callbacks.
      *
-     * @param string $abstract
-     *
+     * @param  string  $abstract
      * @return array
      */
-    public function getReboundCallbacks($abstract)
+    public function getReboundCallbacks(string $abstract): array
     {
         if (isset($this->reboundCallbacks[$abstract])) {
             return $this->reboundCallbacks[$abstract];
         }
 
-        return array();
+        return [];
     }
 
     /**
      * $app->build('Some\Class', [params..]).
      *
-     * @param array $dependencies
-     * @param array $parameters
-     *
+     * @param  array  $dependencies
+     * @param  array  $parameters
      * @return array
      */
-    public function keyParametersByArgument(array $dependencies, array $parameters)
+    public function keyParametersByArgument(array $dependencies, array $parameters): array
     {
         foreach ($parameters as $key => $value) {
             if (is_numeric($key)) {
@@ -664,14 +673,15 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Get dependencies.
      *
-     * @param array $dependencies
-     * @param array $parameters
-     *
+     * @param  array  $dependencies
+     * @param  array  $parameters
      * @return array
+     *
+     * @throws Exception
      */
-    protected function getDependencies(array $dependencies, array $parameters)
+    protected function getDependencies(array $dependencies, array $parameters): array
     {
-        $dependenciesArr = array();
+        $dependenciesArr = [];
 
         foreach ($dependencies as $parameter) {
             $dependency = $this->getParameterClass($parameter);
@@ -691,9 +701,10 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Resolve no class construct.
      *
-     * @param ReflectionParameter $parameter
+     * @param  ReflectionParameter  $parameter
+     * @return mixed
      *
-     * @return
+     * @throws Exception
      */
     protected function resolveNonClass(ReflectionParameter $parameter)
     {
@@ -703,21 +714,22 @@ class Container implements ContainerInterface, ArrayAccess
 
         $message = "Unresolvable dependency resolving [$parameter] in class {$parameter->getDeclaringClass()->getName()}";
 
-        throw new \Exception($message);
+        throw new Exception($message);
     }
 
     /**
      * Resolve Reflection Parameter.
      *
-     * @param ReflectionParameter $parameter
+     * @param  ReflectionParameter  $parameter
+     * @return mixed
      *
-     * @return
+     * @throws ReflectionException
      */
     protected function resolveClass(ReflectionParameter $parameter)
     {
         try {
             return $this->make($this->getParameterClass($parameter)->getName());
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if ($parameter->isOptional()) {
                 return $parameter->getDefaultValue();
             }
@@ -729,11 +741,10 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Determine if a given offset exists.
      *
-     * @param string $key
-     *
+     * @param  string  $key
      * @return bool
      */
-    public function offsetExists($key)
+    public function offsetExists($key): bool
     {
         return $this->bound($key);
     }
@@ -741,9 +752,10 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Get the value at a given offset.
      *
-     * @param string $key
-     *
+     * @param  string  $key
      * @return mixed
+     *
+     * @throws Exception
      */
     public function offsetGet($key)
     {
@@ -753,17 +765,18 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Set the value at a given offset.
      *
-     * @param string $key
-     * @param mixed  $value
-     *
+     * @param  string  $key
+     * @param  mixed  $value
      * @return void
+     *
+     * @throws Exception
      */
     public function offsetSet($key, $value)
     {
         // If the value is not a Closure, we will make it one. This simply gives
         // more "drop-in" replacement functionality for the Pimple which this
         // container's simplest functions are base modeled and built after.
-        if (!$value instanceof Closure) {
+        if (! $value instanceof Closure) {
             $value = function () use ($value) {
                 return $value;
             };
@@ -775,8 +788,7 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Unset the value at a given offset.
      *
-     * @param string $key
-     *
+     * @param  string  $key
      * @return void
      */
     public function offsetUnset($key)
@@ -789,8 +801,7 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Dynamically access container services.
      *
-     * @param string $key
-     *
+     * @param  string  $key
      * @return mixed
      */
     public function __get($key)
@@ -801,9 +812,8 @@ class Container implements ContainerInterface, ArrayAccess
     /**
      * Dynamically set container services.
      *
-     * @param string $key
-     * @param mixed  $value
-     *
+     * @param  string  $key
+     * @param  mixed  $value
      * @return void
      */
     public function __set($key, $value)

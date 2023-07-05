@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * This file is part of the godruoyi/easy-container.
+ *
+ * (c) Godruoyi <g@godruoyi.com>
+ *
+ * This source file is subject to the MIT license that is bundled.
+ */
+
 namespace Tests\Support;
 
 class Hongloumeng implements BookInterface
@@ -19,8 +27,7 @@ class Hongloumeng implements BookInterface
     /**
      * Reset name.
      *
-     * @param string $name
-     *
+     * @param  string  $name
      * @return mixed
      */
     public function resetName($name)

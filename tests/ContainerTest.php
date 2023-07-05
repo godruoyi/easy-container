@@ -1,14 +1,18 @@
 <?php
 
+/*
+ * This file is part of the godruoyi/easy-container.
+ *
+ * (c) Godruoyi <g@godruoyi.com>
+ *
+ * This source file is subject to the MIT license that is bundled.
+ */
+
 namespace Tests;
 
-use Closure;
 use Godruoyi\Container\Container;
-use Godruoyi\Container\ContainerInterface;
 use PHPUnit\Framework\TestCase as BaseTestCase;
-use Tests\Support\BookInterface;
 use Tests\Support\Hongloumeng;
-use Tests\Support\ThreeBody;
 
 class ContainerTest extends BaseTestCase
 {
@@ -115,9 +119,9 @@ class ContainerTest extends BaseTestCase
     public function test_bind_with_alias()
     {
         $app = new Container();
-        $app->bind(array(
+        $app->bind([
             'Interface' => 'Alias',
-        ), 'Tests\Support\Hongloumeng', true);
+        ], 'Tests\Support\Hongloumeng', true);
 
         $a = $app['Interface'];
         $b = $app['Alias'];
@@ -132,7 +136,7 @@ class ContainerTest extends BaseTestCase
         $app = new Container();
         $app->bind('a');
 
-        $this->assertTrue(!$app->isAlias('a'));
+        $this->assertTrue(! $app->isAlias('a'));
         $this->assertTrue($app->bound('a'));
         $this->assertTrue($app->getConcrete('not_exists') === 'not_exists');
     }
@@ -144,7 +148,7 @@ class ContainerTest extends BaseTestCase
             return 1;
         });
 
-        $this->assertTrue(!$app->isAlias('a'));
+        $this->assertTrue(! $app->isAlias('a'));
         $this->assertTrue($app->bound('a'));
         $this->assertEquals(1, $app['a']);
     }
@@ -160,7 +164,7 @@ class ContainerTest extends BaseTestCase
             return 2;
         });
 
-        $this->assertTrue(!$app->isAlias('a'));
+        $this->assertTrue(! $app->isAlias('a'));
         $this->assertTrue($app->bound('a'));
         $this->assertEquals(2, $app['a']);
     }
@@ -177,7 +181,7 @@ class ContainerTest extends BaseTestCase
             return '2';
         });
 
-        $this->assertTrue(!$app->isAlias('a'));
+        $this->assertTrue(! $app->isAlias('a'));
         $this->assertTrue($app->bound('a'));
         $this->assertEquals(1, $app['a']);
     }
@@ -231,7 +235,7 @@ class ContainerTest extends BaseTestCase
         $app = new Container();
         $this->assertEquals($app->call(function ($a, $b = 1) {
             return $a + $b;
-        }, array('a' => 1)), 2);
+        }, ['a' => 1]), 2);
     }
 
     public function test_call_need_parameters3()
@@ -240,7 +244,7 @@ class ContainerTest extends BaseTestCase
 
         $this->assertEquals($app->call(function ($a, $b = 1) {
             return $a + $b;
-        }, array('a' => 1, 'b' => 2)), 3);
+        }, ['a' => 1, 'b' => 2]), 3);
     }
 
     public function test_instance()
