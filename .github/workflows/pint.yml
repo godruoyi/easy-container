@@ -1,7 +1,6 @@
 name: pint
 on:
   pull_request:
-  push:
 jobs:
   run:
     runs-on: ${{ matrix.operating-system }}
