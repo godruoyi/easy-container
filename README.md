@@ -2,6 +2,7 @@
 
 <p align="center">
     <a href="https://github.com/godruoyi/easy-container"><img src="https://github.com/godruoyi/easy-container/actions/workflows/php.yml/badge.svg?branch=master" alt="styleci passed"></a>
+    <a href="https://codecov.io/gh/godruoyi/easy-container" > <img src="https://codecov.io/gh/godruoyi/easy-container/branch/master/graph/badge.svg?token=HRXgEPs8ql" alt="easy-container"/> </a>
     <a href="https://packagist.org/packages/godruoyi/easy-container"><img src="https://poser.pugx.org/godruoyi/easy-container/v/stable.svg" alt="Latest Stable Version"></a>
     <a href="https://packagist.org/packages/godruoyi/easy-container"><img src="https://poser.pugx.org/godruoyi/easy-container/downloads" alt="Total Downloads"></a>
     <a href="https://packagist.org/packages/godruoyi/easy-container"><img src="https://poser.pugx.org/godruoyi/easy-container/license" alt="License"></a>
