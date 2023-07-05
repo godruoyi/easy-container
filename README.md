@@ -42,11 +42,13 @@ $cache = $container->make('Cache');
 Based on this, [easy-container](https://github.com/godruoyi/easy-container) was born, and the project code relied heavily on [Laravel Container](https://github.com/illuminate/container) :smile: :smile: . You can use it like a `Laravel Container` container.
 
 # Install
-
-🐝 Now, we support most PHP versions, which you can view [here](https://github.com/godruoyi/easy-container/actions/workflows/php.yml).
-
+ 
 ```shell
-composer require godruoyi/easy-container
+# PHP >= 7.2
+composer require godruoyi/easy-container:^2.0
+
+# PHP >= 5.6
+composer require godruoyi/easy-container:^1.0
 ```
 
 # Use

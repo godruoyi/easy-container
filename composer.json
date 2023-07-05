@@ -10,8 +10,8 @@
         "email": "godruoyi@gmail.com"
     }],
     "require": {
-        "php": ">=5.3",
-        "psr/container": "^1.0"
+        "php": ">=7.2",
+        "psr/container": "^2.0"
     },
     "autoload": {
         "psr-4": {

@@ -1,9 +1,16 @@
 <?php
 
+/*
+ * This file is part of the godruoyi/easy-container.
+ *
+ * (c) Godruoyi <g@godruoyi.com>
+ *
+ * This source file is subject to the MIT license that is bundled.
+ */
+
 namespace Tests;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
-use Tests\Support\BookInterface;
 use Tests\Support\BookServiceProvider;
 
 class ServiceProvideTest extends BaseTestCase
