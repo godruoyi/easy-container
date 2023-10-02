@@ -23,7 +23,7 @@ use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionUnionType;
 
-class Container implements ContainerInterface, ArrayAccess
+class Container implements ArrayAccess, ContainerInterface
 {
     /**
      * The Container instance.
