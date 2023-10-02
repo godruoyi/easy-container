@@ -10,8 +10,6 @@
 
 # Why
 
-[中文文档](https://github.com/godruoyi/easy-container/blob/master/README_zh-CN.md)
-
 Currently more popular `php` container:
 
  - [Pimple](https://pimple.symfony.com/)
