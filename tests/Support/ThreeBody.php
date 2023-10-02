@@ -10,17 +10,12 @@
 
 namespace Tests\Support;
 
-class ThreeBody
+class ThreeBody implements BookInterface
 {
-    public $book;
+    public string $name = 'Three Body';
 
-    public function __construct(BookInterface $book)
+    public function name(): string
     {
-        $this->book = $book;
-    }
-
-    public function getName()
-    {
-        return $this->book->name();
+        return $this->name;
     }
 }

@@ -15,7 +15,7 @@ interface BookInterface
     /**
      * Get book auther.
      *
-     * @return array
+     * @return string
      */
-    public function name();
+    public function name(): string;
 }

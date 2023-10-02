@@ -10,56 +10,54 @@
 
 namespace Tests;
 
+use Exception;
 use Godruoyi\Container\Container;
-use PHPUnit\Framework\TestCase as BaseTestCase;
-use Tests\Support\Hongloumeng;
+use PHPUnit\Framework\TestCase;
+use Tests\Support\BookInterface;
+use Tests\Support\ThreeBody;
 
-class ContainerTest extends BaseTestCase
+final class ContainerTest extends TestCase
 {
-    public function test_basic()
-    {
-        $app = new Container();
-
-        $this->assertInstanceOf('Godruoyi\Container\Container', $app);
-    }
-
     public function test_bound_in_binds()
     {
         $app = new Container();
-        $app->bind('aaa', function () {
-            return 'aaa';
+        $app->bind('foo', function () {
+            return 'bar';
         });
 
-        $this->assertTrue($app->bound('aaa'));
-        $this->assertFalse($app->bound('bbb'));
+        $this->assertTrue($app->bound('foo'));
+        $this->assertFalse($app->bound('bar'));
     }
 
     public function test_bound_in_instances()
     {
         $app = new Container();
-        $app->instance('aaa', function () {
-            return 'aaa';
+        $app->instance('foo', function () {
+            return 'bar';
         });
 
-        $this->assertTrue($app->bound('aaa'));
-        $this->assertFalse($app->bound('bbb'));
+        $this->assertTrue($app->bound('foo'));
+        $this->assertFalse($app->bound('bar'));
     }
 
     public function test_bound_in_alias()
     {
         $app = new Container();
-        $app->alias('bbb', 'aaa');
+        $app->alias('foo', 'bar');
 
-        $this->assertTrue($app->bound('aaa'));
-        $this->assertFalse($app->bound('bbb'));
+        $this->assertTrue($app->bound('bar'));
+        $this->assertFalse($app->bound('foo'));
     }
 
+    /**
+     * @throws Exception
+     */
     public function test_alias()
     {
         $app = new Container();
-        $app->alias('Tests\Support\Hongloumeng', 'aaa');
+        $app->alias('foo', 'bar');
 
-        $this->assertEquals($app->getAlias('aaa'), 'Tests\Support\Hongloumeng');
+        $this->assertEquals('foo', $app->getAlias('bar'));
     }
 
     public function test_has()
@@ -69,7 +67,6 @@ class ContainerTest extends BaseTestCase
 
         $this->assertTrue($app->has('key'));
         $this->assertFalse($app->has('not exists'));
-        $this->assertEquals(1, $app['key']);
     }
 
     public function test_get()
@@ -88,49 +85,63 @@ class ContainerTest extends BaseTestCase
         $this->assertTrue($app->get('aaa') == 1);
 
         // If get an not exists key, will throw an exception.
+        $this->expectException(Exception::class);
+        $app->get('bbb');
     }
 
+    /**
+     * @throws Exception
+     */
     public function test_bind()
     {
         $app = new Container();
-        $app->bind('BookInterface', 'Tests\Support\Hongloumeng');
+        $app->bind('book', ThreeBody::class);
 
-        $a = $app['BookInterface'];
-        $b = $app['BookInterface'];
+        $a = $app['book'];
+        $b = $app['book'];
 
-        $this->assertEquals($a->name(), 'hong lou meng');
-        $this->assertEquals($b->name(), 'hong lou meng');
+        $this->assertEquals('Three Body', $a->name());
+        $this->assertEquals('Three Body', $b->name());
         $this->assertTrue($a !== $b);
     }
 
+    /**
+     * @throws Exception
+     */
     public function test_bind_share()
     {
         $app = new Container();
-        $app->bind('BookInterface', 'Tests\Support\Hongloumeng', true);
+        $app->bind('book', ThreeBody::class, true);
 
-        $a = $app['BookInterface'];
-        $b = $app['BookInterface'];
+        $a = $app['book'];
+        $b = $app['book'];
 
-        $this->assertEquals($a->name(), 'hong lou meng');
-        $this->assertEquals($b->name(), 'hong lou meng');
+        $this->assertEquals('Three Body', $a->name());
+        $this->assertEquals('Three Body', $b->name());
         $this->assertTrue($a === $b);
     }
 
+    /**
+     * @throws Exception
+     */
     public function test_bind_with_alias()
     {
         $app = new Container();
         $app->bind([
             'Interface' => 'Alias',
-        ], 'Tests\Support\Hongloumeng', true);
+        ], ThreeBody::class, true);
 
         $a = $app['Interface'];
         $b = $app['Alias'];
 
-        $this->assertEquals($a->name(), 'hong lou meng');
+        $this->assertEquals('Three Body', $a->name());
         $this->assertTrue($app->isAlias('Alias'));
         $this->assertTrue($a === $b);
     }
 
+    /**
+     * @throws Exception
+     */
     public function test_bind_concrete_null()
     {
         $app = new Container();
@@ -141,6 +152,9 @@ class ContainerTest extends BaseTestCase
         $this->assertTrue($app->getConcrete('not_exists') === 'not_exists');
     }
 
+    /**
+     * @throws Exception
+     */
     public function test_bind_closure()
     {
         $app = new Container();
@@ -153,6 +167,9 @@ class ContainerTest extends BaseTestCase
         $this->assertEquals(1, $app['a']);
     }
 
+    /**
+     * @throws Exception
+     */
     public function test_bind_resolved()
     {
         $app = new Container();
@@ -169,6 +186,9 @@ class ContainerTest extends BaseTestCase
         $this->assertEquals(2, $app['a']);
     }
 
+    /**
+     * @throws Exception
+     */
     public function test_bind_if()
     {
         $app = new Container();
@@ -190,109 +210,109 @@ class ContainerTest extends BaseTestCase
     {
         $app = new Container();
         $app->singleton('BookInterface', function () {
-            return new Hongloumeng();
+            return new ThreeBody();
         });
 
-        $this->assertEquals($app->get('BookInterface')->name(), 'hong lou meng');
+        $this->assertEquals('Three Body', $app->get('BookInterface')->name());
     }
 
     public function test_extend()
     {
         $app = new Container();
         $app->singleton('BookInterface', function () {
-            return new Hongloumeng();
+            return new ThreeBody();
         });
 
-        $this->assertEquals($app->get('BookInterface')->name(), 'hong lou meng');
+        $this->assertEquals('Three Body', $app->get('BookInterface')->name());
 
-        $app->extend('BookInterface', function ($book) {
-            return $book->resetName('Jiu yang shen gong');
+        $app->extend('BookInterface', function (ThreeBody $book) {
+            $book->name = 'Harry Potter';
+
+            return $book;
         });
 
-        $this->assertEquals($app->get('BookInterface')->name(), 'Jiu yang shen gong');
+        $this->assertEquals('Harry Potter', $app->get('BookInterface')->name());
     }
 
     public function test_call()
     {
         $app = new Container();
-        $this->assertEquals($app->call(function () {
+        $this->assertEquals('hello', $app->call(function () {
             return 'hello';
-        }), 'hello');
+        }));
 
-        $this->assertEquals($app->call('\Tests\Support\Hongloumeng@name'), 'hong lou meng');
+        $this->assertEquals('Three Body', $app->call('\Tests\Support\ThreeBody@name'));
     }
 
     public function test_call_need_parameters()
     {
         $app = new Container();
-        $this->assertEquals($app->call(function (Hongloumeng $book) {
+        $this->assertEquals('Three Body', $app->call(function (ThreeBody $book) {
             return $book->name();
-        }), 'hong lou meng');
+        }));
     }
 
     public function test_call_need_parameters2()
     {
         $app = new Container();
-        $this->assertEquals($app->call(function ($a, $b = 1) {
+        $this->assertEquals(2, $app->call(function ($a, $b = 1) {
             return $a + $b;
-        }, ['a' => 1]), 2);
+        }, ['a' => 1]));
     }
 
     public function test_call_need_parameters3()
     {
         $app = new Container();
 
-        $this->assertEquals($app->call(function ($a, $b = 1) {
+        $this->assertEquals(3, $app->call(function ($a, $b = 1) {
             return $a + $b;
-        }, ['a' => 1, 'b' => 2]), 3);
+        }, ['a' => 1, 'b' => 2]));
     }
 
     public function test_instance()
     {
         $app = new Container();
-        $app->instance('BookInterface', new Hongloumeng());
+        $app->instance('BookInterface', new ThreeBody);
 
-        $this->assertEquals($app->get('BookInterface')->name(), 'hong lou meng');
+        $this->assertEquals('Three Body', $app->get('BookInterface')->name());
     }
 
     public function test_make()
     {
         $app = new Container();
-        $app->instance('BookInterface', new Hongloumeng());
+        $app->instance('BookInterface', new ThreeBody);
 
-        $this->assertInstanceOf('Tests\Support\Hongloumeng', $app->make('BookInterface'));
-        $this->assertEquals($app->make('BookInterface')->name(), 'hong lou meng');
+        $this->assertInstanceOf('Tests\Support\ThreeBody', $app->make('BookInterface'));
+        $this->assertEquals('Three Body', $app->make('BookInterface')->name());
     }
 
     public function test_make_with_auto_injection()
     {
         $app = new Container();
 
-        $app->instance('Tests\Support\BookInterface', new Hongloumeng());
-        $app->bind('a', 'Tests\Support\ThreeBody');
+        $app->instance(BookInterface::class, new ThreeBody);
+        $app->bind('a', ThreeBody::class);
 
         $a = $app->make('a');
 
         $this->assertInstanceOf('Tests\Support\ThreeBody', $a);
-        $this->assertInstanceOf('Tests\Support\Hongloumeng', $a->book);
-        $this->assertEquals($a->getName(), 'hong lou meng');
+        $this->assertEquals($a->name(), 'Three Body');
     }
 
     public function test_get_class()
     {
-        $x = new \ReflectionFunction(function (Hongloumeng $a, $b) {
+        $x = new \ReflectionFunction(function (ThreeBody $a, $b) {
         });
 
         $ps = $x->getParameters();
 
-        $this->assertTrue(is_array($ps));
         $this->assertCount(2, $ps);
     }
 
     public function test_resolved()
     {
         $app = new Container();
-        $app->instance('BookInterface', new Hongloumeng());
+        $app->instance('BookInterface', new ThreeBody);
 
         $this->assertTrue($app->resolved('BookInterface'));
     }

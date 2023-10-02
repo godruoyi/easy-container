@@ -31,7 +31,7 @@ interface ContainerInterface extends BaseContainerInterface
      * @param  string  $alias
      * @return void
      */
-    public function alias(string $abstract, string $alias);
+    public function alias(string $abstract, string $alias): void;
 
     /**
      * Register a binding with the container.
@@ -41,7 +41,7 @@ interface ContainerInterface extends BaseContainerInterface
      * @param  bool  $shared
      * @return void
      */
-    public function bind($abstract, $concrete = null, bool $shared = false);
+    public function bind($abstract, $concrete = null, bool $shared = false): void;
 
     /**
      * Register a binding if it hasn't already been registered.
@@ -51,7 +51,7 @@ interface ContainerInterface extends BaseContainerInterface
      * @param  bool  $shared
      * @return void
      */
-    public function bindIf(string $abstract, $concrete = null, bool $shared = false);
+    public function bindIf(string $abstract, mixed $concrete = null, bool $shared = false): void;
 
     /**
      * Register a shared binding in the container.
@@ -60,7 +60,7 @@ interface ContainerInterface extends BaseContainerInterface
      * @param  Closure|string|null  $concrete
      * @return void
      */
-    public function singleton($abstract, $concrete = null);
+    public function singleton($abstract, $concrete = null): void;
 
     /**
      * "Extend" an abstract type in the container.
@@ -71,7 +71,7 @@ interface ContainerInterface extends BaseContainerInterface
      *
      * @throws InvalidArgumentException
      */
-    public function extend(string $abstract, Closure $closure);
+    public function extend(string $abstract, Closure $closure): void;
 
     /**
      * Register an existing instance as shared in the container.
@@ -80,7 +80,7 @@ interface ContainerInterface extends BaseContainerInterface
      * @param  mixed  $instance
      * @return void
      */
-    public function instance(string $abstract, $instance);
+    public function instance(string $abstract, mixed $instance): void;
 
     /**
      * Resolve the given type from the container.
@@ -89,7 +89,7 @@ interface ContainerInterface extends BaseContainerInterface
      * @param  array  $parameters
      * @return mixed
      */
-    public function make(string $abstract, array $parameters = []);
+    public function make(string $abstract, array $parameters = []): mixed;
 
     /**
      * Call the given Closure / class@method and inject its dependencies.
@@ -99,7 +99,7 @@ interface ContainerInterface extends BaseContainerInterface
      * @param  string|null  $defaultMethod
      * @return mixed
      */
-    public function call($callback, array $parameters = [], string $defaultMethod = null);
+    public function call($callback, array $parameters = [], string $defaultMethod = null): mixed;
 
     /**
      * Determine if the given abstract type has been resolved.

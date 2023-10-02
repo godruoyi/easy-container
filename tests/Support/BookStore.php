@@ -8,4 +8,11 @@
  * This source file is subject to the MIT license that is bundled.
  */
 
-include __DIR__.'/../vendor/autoload.php';
+namespace Tests\Support;
+
+class BookStore
+{
+    public function __construct(public BookInterface $book)
+    {
+    }
+}

@@ -44,13 +44,12 @@ Based on this, [easy-container](https://github.com/godruoyi/easy-container) was 
 
 # Install
  
-```shell
-# PHP >= 7.2
-composer require godruoyi/easy-container:^2.0
+| SDK Version | PHP Version | Composer Command                         |
+|-------------|-------------|------------------------------------------|
+| 3.x         | >= 8.1      | `composer require "easy-container:^3.0"` |
+| 2.x         | >= 7.2      | `composer require "easy-container:^2.1"` |
+| 1.x         | >= 5.6      | `composer require "easy-container:^2.1"` |
 
-# PHP >= 5.6
-composer require godruoyi/easy-container:^1.0
-```
 
 # Use
 
