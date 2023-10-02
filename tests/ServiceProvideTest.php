@@ -10,18 +10,25 @@
 
 namespace Tests;
 
+use Exception;
+use Godruoyi\Container\Container;
 use PHPUnit\Framework\TestCase as BaseTestCase;
+use Tests\Support\BookInterface;
 use Tests\Support\BookServiceProvider;
 
 class ServiceProvideTest extends BaseTestCase
 {
+    /**
+     * @throws Exception
+     */
     public function test_basic()
     {
-        $container = new \Godruoyi\Container\Container();
+        $container = new Container();
 
         $a = new BookServiceProvider();
         $a->register($container);
 
-        $this->assertEquals($container['BookInterface']->name(), 'hong lou meng');
+        $this->assertEquals('Three Body', $container['book']->name());
+        $this->assertEquals('Three Body', $container[BookInterface::class]->name());
     }
 }

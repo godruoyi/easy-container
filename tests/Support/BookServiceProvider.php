@@ -10,6 +10,8 @@
 
 namespace Tests\Support;
 
+use Exception;
+use Godruoyi\Container\Container;
 use Godruoyi\Container\ContainerInterface;
 use Godruoyi\Container\ServiceProviderInterface;
 
@@ -22,11 +24,15 @@ class BookServiceProvider implements ServiceProviderInterface
      * It should not get services.
      *
      * @param  Container  $container A container instance
+     *
+     * @throws Exception
      */
-    public function register(ContainerInterface $container)
+    public function register(ContainerInterface $container): void
     {
-        $container->bind('BookInterface', function ($app) {
-            return $app->make('Tests\Support\Hongloumeng');
+        $container->bind(BookInterface::class, function ($app) {
+            return $app->make(ThreeBody::class);
         });
+
+        $container->alias(BookInterface::class, 'book');
     }
 }
